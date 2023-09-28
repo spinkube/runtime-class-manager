@@ -18,9 +18,8 @@ package config
 
 type Config struct {
 	Runtime struct {
-		Name          string
-		ConfigPath    string
-		CRIPluginName string
+		Name       string
+		ConfigPath string
 	}
 	Kwasm struct {
 		Path      string

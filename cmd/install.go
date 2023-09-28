@@ -18,10 +18,12 @@ package cmd
 
 import (
 	"log/slog"
-
-	"github.com/spf13/cobra"
+	"os"
+	"path"
 
 	"github.com/kwasm/kwasm-node-installer/pkg/containerd"
+	"github.com/kwasm/kwasm-node-installer/pkg/shim"
+	"github.com/spf13/cobra"
 )
 
 // installCmd represents the install command
@@ -29,9 +31,27 @@ var installCmd = &cobra.Command{
 	Use:   "install",
 	Short: "Install containerd shims",
 	Run: func(cmd *cobra.Command, args []string) {
-		slog.Info("install called", "config", config)
+		files, err := os.ReadDir(config.Kwasm.AssetPath)
+		if err != nil {
+			slog.Error(err.Error())
+			return
+		}
+		for _, file := range files {
+			binPath, err := shim.Install(config.Host.RootPath, path.Join(config.Kwasm.AssetPath, file.Name()), path.Join(config.Kwasm.Path, "bin"))
+			if err != nil {
+				slog.Error(err.Error())
+				return
+			}
+			slog.Info("shim installed", "shim", shim.RuntimeName(file.Name()), "path", binPath)
+			configPath, err := containerd.WriteConfig(&config, binPath)
+			if err != nil {
+				slog.Error(err.Error())
+				return
+			}
+			slog.Info("shim configured", "shim", shim.RuntimeName(file.Name()), "path", configPath)
+		}
 
-		err := containerd.RestartRuntime()
+		err = containerd.RestartRuntime()
 		if err != nil {
 			slog.Error("failed to restart containerd", "error", err)
 		}
@@ -40,6 +60,5 @@ var installCmd = &cobra.Command{
 
 func init() {
 	installCmd.Flags().StringVarP(&config.Kwasm.AssetPath, "asset-path", "a", "/assets", "Path to the binaries and libraries to install")
-	installCmd.Flags().StringVarP(&config.Runtime.CRIPluginName, "cri-plugin-name", "p", "\"io.containerd.grpc.v1.cri\"", "Name of the cri plugin")
 	rootCmd.AddCommand(installCmd)
 }
