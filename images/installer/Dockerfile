@@ -1,4 +1,4 @@
-FROM golang:1.21
+FROM golang:1.21 as builder
 
 WORKDIR /app
 
@@ -10,5 +10,8 @@ COPY cmd ./cmd
 COPY *.go ./
 
 RUN go build -o kwasm-node-installer
+
+FROM scratch
+COPY --from=builder /app/kwasm-node-installer /kwasm-node-installer
 
 CMD ["/app/kwasm-node-installer", "install"]
