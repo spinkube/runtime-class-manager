@@ -21,19 +21,34 @@ spec:
         - name: node-root
           hostPath:
             path: /
-        - name: entrypoint
-          configMap:
-            name: entrypoint
-            defaultMode: 0744
+        - name: assets
+          emptyDir: {}
       initContainers:
-        - image: ghcr.io/kwasm/kwasm-node-installer:main
-          name: kwasm-initializer
+        - image: busybox:latest
+          name: shim-downloader
           env:
-            - name: NODE_ROOT
-              value: /mnt/node-root
+          volumeMounts:
+            - name: assets
+              mountPath: /assets
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              wget -O- https://github.com/deislabs/containerd-wasm-shims/releases/download/v0.9.1/containerd-wasm-shims-v1-lunatic-linux-$(uname -m).tar.gz  | tar xzf - -C /assets;
+              wget -O- https://github.com/deislabs/containerd-wasm-shims/releases/download/v0.9.1/containerd-wasm-shims-v1-slight-linux-$(uname -m).tar.gz  | tar -xzf - -C /assets;
+              wget -O- https://github.com/deislabs/containerd-wasm-shims/releases/download/v0.9.1/containerd-wasm-shims-v1-spin-linux-$(uname -m).tar.gz  | tar -xzf - -C /assets;
+              wget -O- https://github.com/deislabs/containerd-wasm-shims/releases/download/v0.9.1/containerd-wasm-shims-v1-wws-linux-$(uname -m).tar.gz  | tar -xzf - -C /assets
+        - image: ghcr.io/kwasm/kwasm-node-installer:pr-46
+          name: kwasm-initializer
+          imagePullPolicy: Always
+          args:
+            - "install"
+            - "-H"
+            - "/mnt/node-root"
           securityContext:
             privileged: true
           volumeMounts:
+            - name: assets
+              mountPath: /assets
             - name: node-root
               mountPath: /mnt/node-root/
       containers:
