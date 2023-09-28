@@ -9,7 +9,8 @@ COPY pkg ./pkg
 COPY cmd ./cmd
 COPY *.go ./
 
-RUN go build -o kwasm-node-installer
+RUN CGO_ENABLED=0 go build -o kwasm-node-installer
+RUN /app/kwasm-node-installer -h
 
 FROM scratch
 COPY --from=builder /app/kwasm-node-installer /kwasm-node-installer
