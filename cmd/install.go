@@ -19,7 +19,6 @@ package cmd
 import (
 	"log/slog"
 	"os"
-	"path"
 
 	"github.com/kwasm/kwasm-node-installer/pkg/containerd"
 	"github.com/kwasm/kwasm-node-installer/pkg/shim"
@@ -37,7 +36,7 @@ var installCmd = &cobra.Command{
 			return
 		}
 		for _, file := range files {
-			binPath, err := shim.Install(config.Host.RootPath, path.Join(config.Kwasm.AssetPath, file.Name()), path.Join(config.Kwasm.Path, "bin"))
+			binPath, err := shim.Install(&config, file.Name())
 			if err != nil {
 				slog.Error(err.Error())
 				return

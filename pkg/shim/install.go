@@ -4,15 +4,18 @@ import (
 	"io"
 	"os"
 	"path"
+
+	"github.com/kwasm/kwasm-node-installer/pkg/config"
 )
 
-func Install(hostPath string, shimPath string, binaryDir string) (string, error) {
+func Install(config *config.Config, shimName string) (string, error) {
+	shimPath := config.AssetPath(shimName)
 	srcFile, err := os.OpenFile(shimPath, os.O_RDONLY, 0000)
 	if err != nil {
 		return "", err
 	}
-	dstFilePath := path.Join(binaryDir, path.Base(shimPath))
-	dstFilePathHost := path.Join(hostPath, dstFilePath)
+	dstFilePath := path.Join(config.Kwasm.Path, "bin", shimName)
+	dstFilePathHost := config.PathWithHost(dstFilePath)
 
 	err = os.MkdirAll(path.Dir(dstFilePathHost), 0755)
 	if err != nil {

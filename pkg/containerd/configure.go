@@ -15,7 +15,7 @@ func WriteConfig(config *config.Config, shimPath string) (string, error) {
 	cfg := generateConfig(shimPath, runtimeName)
 
 	configPath := path.Join(configDirectory(config), fmt.Sprintf("%s.%s", runtimeName, "toml"))
-	configHostPath := path.Join(config.Host.RootPath, configPath)
+	configHostPath := config.PathWithHost(configPath)
 
 	err := os.MkdirAll(path.Dir(configHostPath), 0755)
 	if err != nil {
