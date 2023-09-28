@@ -20,6 +20,8 @@ import (
 	"log/slog"
 
 	"github.com/spf13/cobra"
+
+	"github.com/kwasm/kwasm-node-installer/pkg/containerd"
 )
 
 // installCmd represents the install command
@@ -28,6 +30,11 @@ var installCmd = &cobra.Command{
 	Short: "Install containerd shims",
 	Run: func(cmd *cobra.Command, args []string) {
 		slog.Info("install called", "config", config)
+
+		err := containerd.RestartRuntime()
+		if err != nil {
+			slog.Error("failed to restart containerd", "error", err)
+		}
 	},
 }
 
