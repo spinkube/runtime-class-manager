@@ -45,13 +45,6 @@ jobs:
         # Setup docker build to use your Namespace workspace builder
         name: Set up Namespace Buildx
         uses: namespacelabs/nscloud-setup-buildx-action@v0
-# TODO: make builds from latest main branch conditional
-#      - name: Build runwasi as static muls for amd64 and arm64
-#        run: |
-#          git clone --branch main --depth 1 https://github.com/containerd/runwasi.git &&
-#          cd runwasi &&
-#          docker build --platform=linux/arm64,linux/amd64 --build-arg BASE_IMAGE=alpine --build-arg CRATE="containerd-shim-wasmtime,containerd-shim-wasmedge,containerd-shim-wasmer" -t nscr.io/a8fcp47vcfori/build-runwasi --push . &&
-#          cd -
       - 
         name: Build and push Docker image
         uses: docker/build-push-action@v4
