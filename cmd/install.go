@@ -35,21 +35,33 @@ var installCmd = &cobra.Command{
 			slog.Error(err.Error())
 			return
 		}
+		anythingChanged := false
 		for _, file := range files {
-			binPath, err := shim.Install(&config, file.Name())
+			fileName := file.Name()
+			runtimeName := shim.RuntimeName(fileName)
+
+			binPath, changed, err := shim.Install(&config, fileName)
 			if err != nil {
-				slog.Error(err.Error())
+				slog.Error("failed to install shim", "shim", runtimeName, "error", err)
 				return
 			}
-			slog.Info("shim installed", "shim", shim.RuntimeName(file.Name()), "path", binPath)
+			anythingChanged = anythingChanged || changed
+			slog.Info("shim installed", "shim", runtimeName, "path", binPath, "new-version", changed)
+
 			configPath, err := containerd.WriteConfig(&config, binPath)
 			if err != nil {
-				slog.Error(err.Error())
+				slog.Error("failed to write containerd config", "shim", runtimeName, "path", configPath, "error", err)
 				return
 			}
-			slog.Info("shim configured", "shim", shim.RuntimeName(file.Name()), "path", configPath)
+			slog.Info("shim configured", "shim", runtimeName, "path", configPath)
 		}
 
+		if !anythingChanged {
+			slog.Info("nothing changed, nothing more to do")
+			return
+		}
+
+		slog.Info("restarting containerd")
 		err = containerd.RestartRuntime()
 		if err != nil {
 			slog.Error("failed to restart containerd", "error", err)

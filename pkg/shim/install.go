@@ -17,32 +17,52 @@
 package shim
 
 import (
+	"crypto/sha256"
 	"io"
 	"os"
 	"path"
 
 	"github.com/kwasm/kwasm-node-installer/pkg/config"
+	"github.com/kwasm/kwasm-node-installer/pkg/state"
 )
 
-func Install(config *config.Config, shimName string) (string, error) {
+func Install(config *config.Config, shimName string) (string, bool, error) {
 	shimPath := config.AssetPath(shimName)
 	srcFile, err := os.OpenFile(shimPath, os.O_RDONLY, 0000)
 	if err != nil {
-		return "", err
+		return "", false, err
 	}
 	dstFilePath := path.Join(config.Kwasm.Path, "bin", shimName)
 	dstFilePathHost := config.PathWithHost(dstFilePath)
 
 	err = os.MkdirAll(path.Dir(dstFilePathHost), 0755)
 	if err != nil {
-		return dstFilePath, err
+		return dstFilePath, false, err
 	}
 
 	dstFile, err := os.OpenFile(dstFilePathHost, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
 	if err != nil {
-		return "", err
+		return "", false, err
 	}
-	_, err = io.Copy(dstFile, srcFile)
 
-	return dstFilePath, err
+	st, err := state.Get(config)
+	if err != nil {
+		return "", false, err
+	}
+	shimSha256 := sha256.New()
+
+	_, err = io.Copy(io.MultiWriter(dstFile, shimSha256), srcFile)
+	runtimeName := RuntimeName(shimName)
+	changed := st.ShimChanged(runtimeName, shimSha256.Sum(nil), dstFilePath)
+	if changed {
+		st.UpdateShim(runtimeName, state.Shim{
+			Path:   dstFilePath,
+			Sha256: shimSha256.Sum(nil),
+		})
+		if err := st.Write(); err != nil {
+			return "", false, err
+		}
+	}
+
+	return dstFilePath, changed, err
 }
