@@ -46,6 +46,10 @@ func (l *state) UpdateShim(shimName string, shim Shim) {
 	l.Shims[shimName] = &shim
 }
 
+func (l *state) RemoveShim(shimName string) {
+	delete(l.Shims, shimName)
+}
+
 func (l *state) Write() error {
 	out, err := json.MarshalIndent(l, "", " ")
 	if err != nil {

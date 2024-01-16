@@ -18,8 +18,12 @@ package cmd
 
 import (
 	"log/slog"
+	"path"
 
 	"github.com/spf13/cobra"
+
+	"github.com/kwasm/kwasm-node-installer/pkg/containerd"
+	"github.com/kwasm/kwasm-node-installer/pkg/shim"
 )
 
 // uninstallCmd represents the uninstall command
@@ -27,7 +31,21 @@ var uninstallCmd = &cobra.Command{
 	Use:   "uninstall",
 	Short: "Uninstall containerd shims",
 	Run: func(cmd *cobra.Command, args []string) {
-		slog.Info("install called", "config", config)
+		slog.Info("uninstall called", "config", config)
+		shimName := config.Runtime.Name
+		runtimeName := path.Join(config.Kwasm.Path, "bin", shimName)
+
+		binPath, err := shim.Uninstall(&config, shimName)
+		if err != nil {
+			slog.Error("failed to uninstall shim", "shim", runtimeName, "error", err)
+			return
+		}
+
+		configPath, err := containerd.RemoveRuntime(&config, binPath)
+		if err != nil {
+			slog.Error("failed to write containerd config", "shim", runtimeName, "path", configPath, "error", err)
+			return
+		}
 	},
 }
 

@@ -17,8 +17,11 @@
 package cmd
 
 import (
+	"fmt"
+	"io/fs"
 	"log/slog"
 	"os"
+	"path"
 
 	"github.com/kwasm/kwasm-node-installer/pkg/containerd"
 	"github.com/kwasm/kwasm-node-installer/pkg/shim"
@@ -30,11 +33,28 @@ var installCmd = &cobra.Command{
 	Use:   "install",
 	Short: "Install containerd shims",
 	Run: func(cmd *cobra.Command, args []string) {
-		files, err := os.ReadDir(config.Kwasm.AssetPath)
+
+		// Get file or directory information.
+		info, err := os.Stat(config.Kwasm.AssetPath)
 		if err != nil {
-			slog.Error(err.Error())
+			fmt.Println(err)
 			return
 		}
+
+		var files []fs.DirEntry
+		// Check if the path is a directory.
+		if info.IsDir() {
+			files, err = os.ReadDir(config.Kwasm.AssetPath)
+			if err != nil {
+				slog.Error(err.Error())
+				return
+			}
+		} else {
+			// If the path is not a directory, add the file to the list of files.
+			files = append(files, fs.FileInfoToDirEntry(info))
+			config.Kwasm.AssetPath = path.Dir(config.Kwasm.AssetPath)
+		}
+
 		anythingChanged := false
 		for _, file := range files {
 			fileName := file.Name()
@@ -48,7 +68,7 @@ var installCmd = &cobra.Command{
 			anythingChanged = anythingChanged || changed
 			slog.Info("shim installed", "shim", runtimeName, "path", binPath, "new-version", changed)
 
-			configPath, err := containerd.WriteConfig(&config, binPath)
+			configPath, err := containerd.AddRuntime(&config, binPath)
 			if err != nil {
 				slog.Error("failed to write containerd config", "shim", runtimeName, "path", configPath, "error", err)
 				return
@@ -70,6 +90,6 @@ var installCmd = &cobra.Command{
 }
 
 func init() {
-	installCmd.Flags().StringVarP(&config.Kwasm.AssetPath, "asset-path", "a", "/assets", "Path to the binaries and libraries to install")
+	installCmd.Flags().StringVarP(&config.Kwasm.AssetPath, "asset-path", "a", "/assets", "Path to the asset to install")
 	rootCmd.AddCommand(installCmd)
 }
