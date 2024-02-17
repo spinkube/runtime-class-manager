@@ -1,4 +1,4 @@
-name: kwasm-operator release
+name: runtime-class-manager release
 on:
   push:
     tags:
@@ -89,12 +89,12 @@ jobs:
             let path = require('path');
 
             let files = [
-              'kwasm-operator-sbom-amd64.spdx',
-              'kwasm-operator-sbom-amd64.spdx.cert',
-              'kwasm-operator-sbom-amd64.spdx.sig',
-              'kwasm-operator-sbom-arm64.spdx',
-              'kwasm-operator-sbom-arm64.spdx.cert',
-              'kwasm-operator-sbom-arm64.spdx.sig']
+              '${{ github.repository }}-sbom-amd64.spdx',
+              '${{ github.repository }}-sbom-amd64.spdx.cert',
+              '${{ github.repository }}-sbom-amd64.spdx.sig',
+              '${{ github.repository }}-sbom-arm64.spdx',
+              '${{ github.repository }}-sbom-arm64.spdx.cert',
+              '${{ github.repository }}-sbom-arm64.spdx.sig']
             const {RELEASE_ID} = process.env
 
             for (const file of files) {
