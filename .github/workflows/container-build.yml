@@ -16,6 +16,7 @@ jobs:
   build:
     uses: ./.github/workflows/container-image.yml
     permissions:
+      contents: read
       packages: write
     with:
       push-image: true
