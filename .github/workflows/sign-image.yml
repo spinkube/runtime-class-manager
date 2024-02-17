@@ -25,9 +25,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-  
+
       - name: Sign container image
         run: |
           IMG_REPOSITORY_NAME=$( echo ${{ github.repository_owner }} | awk '{print tolower($0)}' )
           cosign sign --yes \
-            ghcr.io/${IMG_REPOSITORY_NAME}/kwasm-operator@${{ inputs.image-digest }}
+            ghcr.io/${IMG_REPOSITORY_NAME}/${{ github.repository }@${{ inputs.image-digest }}
