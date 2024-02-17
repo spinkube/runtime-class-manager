@@ -21,6 +21,7 @@ jobs:
   build:
     name: Build container image
     permissions:
+      contents: read
       packages: write
     runs-on: ubuntu-latest
     outputs:
@@ -66,10 +67,10 @@ jobs:
           platforms: linux/amd64, linux/arm64
           push: true
           tags: |
-            ghcr.io/${{ env.IMG_REPOSITORY_NAME }}/kwasm-operator:${{ env.TAG_NAME }}
+            ghcr.io/${{ env.IMG_REPOSITORY_NAME }}/${{ github.repository }}:${{ env.TAG_NAME }}
       - id: setoutput
         name: Set output parameters
         run: |
-          echo "repository=ghcr.io/${{ env.IMG_REPOSITORY_NAME }}/kwasm-operator" >> $GITHUB_OUTPUT
+          echo "repository=ghcr.io/${{ env.IMG_REPOSITORY_NAME }}/${{ github.repository }}" >> $GITHUB_OUTPUT
           echo "tag=${{ env.TAG_NAME }}" >> $GITHUB_OUTPUT
           echo "digest=${{ steps.build-image.outputs.digest }}" >> $GITHUB_OUTPUT
