@@ -22,25 +22,25 @@ import (
 	"os"
 	"path"
 
-	"github.com/kwasm/kwasm-node-installer/pkg/config"
-	"github.com/kwasm/kwasm-node-installer/pkg/state"
+	"github.com/spinkube/runtime-class-manager/pkg/config"
+	"github.com/spinkube/runtime-class-manager/pkg/state"
 )
 
 func Install(config *config.Config, shimName string) (string, bool, error) {
 	shimPath := config.AssetPath(shimName)
-	srcFile, err := os.OpenFile(shimPath, os.O_RDONLY, 0000)
+	srcFile, err := os.OpenFile(shimPath, os.O_RDONLY, 0o000)
 	if err != nil {
 		return "", false, err
 	}
 	dstFilePath := path.Join(config.Kwasm.Path, "bin", shimName)
 	dstFilePathHost := config.PathWithHost(dstFilePath)
 
-	err = os.MkdirAll(path.Dir(dstFilePathHost), 0755)
+	err = os.MkdirAll(path.Dir(dstFilePathHost), 0o755)
 	if err != nil {
 		return dstFilePath, false, err
 	}
 
-	dstFile, err := os.OpenFile(dstFilePathHost, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
+	dstFile, err := os.OpenFile(dstFilePathHost, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o755)
 	if err != nil {
 		return "", false, err
 	}

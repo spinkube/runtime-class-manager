@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/kwasm/kwasm-node-installer/pkg/config"
-	"github.com/kwasm/kwasm-node-installer/pkg/state"
+	"github.com/spinkube/runtime-class-manager/pkg/config"
+	"github.com/spinkube/runtime-class-manager/pkg/state"
 )
 
 func Uninstall(config *config.Config, shimName string) (string, error) {
-
 	st, err := state.Get(config)
 	if err != nil {
 		return "", err

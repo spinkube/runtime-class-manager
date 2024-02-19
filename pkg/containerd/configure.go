@@ -23,8 +23,8 @@ import (
 	"path"
 	"strings"
 
-	"github.com/kwasm/kwasm-node-installer/pkg/config"
-	"github.com/kwasm/kwasm-node-installer/pkg/shim"
+	"github.com/spinkube/runtime-class-manager/pkg/config"
+	"github.com/spinkube/runtime-class-manager/pkg/shim"
 )
 
 func AddRuntime(config *config.Config, shimPath string) (string, error) {
@@ -45,13 +45,13 @@ func AddRuntime(config *config.Config, shimPath string) (string, error) {
 	// Prevents corrupt config but could lead to unexpcted fails for the user.
 	// Maybe skipping existing config?
 	if strings.Contains(string(data), runtimeName) {
-		//return configPath, fmt.Errorf("config file %s already contains runtime config for '%s'", configPath, runtimeName)
+		// return configPath, fmt.Errorf("config file %s already contains runtime config for '%s'", configPath, runtimeName)
 		log.Printf("runtime '%s' already exists, skipping", runtimeName)
 		return configPath, nil
 	}
 
 	// Open file in append mode
-	file, err := os.OpenFile(configHostPath, os.O_APPEND|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(configHostPath, os.O_APPEND|os.O_WRONLY, 0o644)
 	if err != nil {
 		return configPath, err
 	}
@@ -89,7 +89,7 @@ func RemoveRuntime(config *config.Config, shimPath string) (string, error) {
 	modifiedData := strings.Replace(string(data), cfg, "", -1)
 
 	// Write the modified data back to the file.
-	err = os.WriteFile(configHostPath, []byte(modifiedData), 0644)
+	err = os.WriteFile(configHostPath, []byte(modifiedData), 0o644)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -98,7 +98,7 @@ func RemoveRuntime(config *config.Config, shimPath string) (string, error) {
 }
 
 func configDirectory(config *config.Config) string {
-	//return path.Join(path.Dir(config.Runtime.ConfigPath), "conf.d")
+	// return path.Join(path.Dir(config.Runtime.ConfigPath), "conf.d")
 	return config.Runtime.ConfigPath
 }
 

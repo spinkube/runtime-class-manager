@@ -21,15 +21,13 @@ import (
 	"os"
 	"strings"
 
-	cfg "github.com/kwasm/kwasm-node-installer/pkg/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	cfg "github.com/spinkube/runtime-class-manager/pkg/config"
 )
 
-var (
-	config cfg.Config
-)
+var config cfg.Config
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{

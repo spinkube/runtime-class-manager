@@ -8,7 +8,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/kwasm/kwasm-node-installer/pkg/config"
+	"github.com/spinkube/runtime-class-manager/pkg/config"
 )
 
 type state struct {
@@ -58,7 +58,7 @@ func (l *state) Write() error {
 
 	slog.Info("writing lock file", "content", string(out))
 
-	return os.WriteFile(filePath(l.config), out, 0644)
+	return os.WriteFile(filePath(l.config), out, 0o644)
 }
 
 func filePath(config *config.Config) string {

@@ -23,9 +23,9 @@ import (
 	"os"
 	"path"
 
-	"github.com/kwasm/kwasm-node-installer/pkg/containerd"
-	"github.com/kwasm/kwasm-node-installer/pkg/shim"
 	"github.com/spf13/cobra"
+	"github.com/spinkube/runtime-class-manager/pkg/containerd"
+	"github.com/spinkube/runtime-class-manager/pkg/shim"
 )
 
 // installCmd represents the install command
@@ -33,7 +33,6 @@ var installCmd = &cobra.Command{
 	Use:   "install",
 	Short: "Install containerd shims",
 	Run: func(cmd *cobra.Command, args []string) {
-
 		// Get file or directory information.
 		info, err := os.Stat(config.Kwasm.AssetPath)
 		if err != nil {
