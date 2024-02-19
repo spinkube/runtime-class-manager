@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kwasm-initializer
+  labels:
+    app: default-init
+spec:
+  selector:
+    matchLabels:
+      app: default-init
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: kwasm-initializer
+        app: default-init
+    spec:
+      hostPID: true
+      volumes:
+        - name: node-root
+          hostPath:
+            path: /
+        - name: assets
+          emptyDir: {}
+      initContainers:
+        - image: busybox:latest
+          name: shim-downloader
+          env:
+          volumeMounts:
+            - name: assets
+              mountPath: /assets
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              wget -O- https://github.com/deislabs/containerd-wasm-shims/releases/download/v0.9.1/containerd-wasm-shims-v1-lunatic-linux-$(uname -m).tar.gz  | tar xzf - -C /assets;
+              wget -O- https://github.com/deislabs/containerd-wasm-shims/releases/download/v0.9.1/containerd-wasm-shims-v1-slight-linux-$(uname -m).tar.gz  | tar -xzf - -C /assets;
+              wget -O- https://github.com/deislabs/containerd-wasm-shims/releases/download/v0.9.1/containerd-wasm-shims-v1-spin-linux-$(uname -m).tar.gz  | tar -xzf - -C /assets;
+              wget -O- https://github.com/deislabs/containerd-wasm-shims/releases/download/v0.9.1/containerd-wasm-shims-v1-wws-linux-$(uname -m).tar.gz  | tar -xzf - -C /assets
+        - image: ghcr.io/kwasm/kwasm-node-installer:pr-46
+          name: kwasm-initializer
+          imagePullPolicy: Always
+          args:
+            - "install"
+            - "-H"
+            - "/mnt/node-root"
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: assets
+              mountPath: /assets
+            - name: node-root
+              mountPath: /mnt/node-root/
+      containers:
+        - image: k8s.gcr.io/pause:3.1
+          name: pause

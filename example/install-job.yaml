@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  creationTimestamp: null
+  name: default-init
+spec:
+  template:
+    metadata:
+      labels:
+        name: kwasm-initializer
+        app: default-init
+    spec:
+      restartPolicy: Never
+      hostPID: true
+      volumes:
+        - name: node-root
+          hostPath:
+            path: /
+        - name: entrypoint
+          configMap:
+            name: entrypoint
+            defaultMode: 0744
+      containers:
+        - image: ghcr.io/kwasm/kwasm-node-installer:master
+          name: kwasm-initializer
+          env:
+            - name: NODE_ROOT
+              value: /mnt/node-root
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: node-root
+              mountPath: /mnt/node-root/
+  backoffLimit: 1
