@@ -6,7 +6,7 @@ domain: kwasm.sh
 layout:
 - go.kubebuilder.io/v4
 projectName: kwasm-operator
-repo: github.com/kwasm/kwasm-operator
+repo: github.com/spinkube/runtime-class-manager
 resources:
 - api:
     crdVersion: v1
@@ -15,7 +15,7 @@ resources:
   domain: kwasm.sh
   group: runtime
   kind: Shim
-  path: github.com/kwasm/kwasm-operator/api/v1alpha1
+  path: github.com/spinkube/runtime-class-manager/api/v1alpha1
   version: v1alpha1
 - controller: true
   domain: kwasm.sh
