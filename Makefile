@@ -91,14 +91,14 @@ lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
 
 .PHONY: golangci-build
 golangci-build: ## Build manager binary.
-	go build -ldflags "${LDFLAGS}" -a -o bin/manager cmd/main.go
+	go build -ldflags "${LDFLAGS}" -a -o bin/manager cmd/rcm/main.go
 
 .PHONY: build
 build: manifests generate fmt vet golangci-build ## Build manager binary.
 
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.
-	CONTROLLER_NAMESPACE="default" go run -ldflags "${LDFLAGS}" ./cmd/main.go
+	CONTROLLER_NAMESPACE="default" go run -ldflags "${LDFLAGS}" ./cmd/rcm/main.go
 
 # If you wish to build the manager image targeting other platforms you can use the --platform flag.
 # (i.e. docker build --platform linux/arm64). However, you must enable docker buildKit for it.
