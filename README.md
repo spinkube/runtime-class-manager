@@ -1,8 +1,8 @@
-# containerd-shim-lifecycle-operator
+# runtime-class-manager
 
-The containerd-shim-lifecycle-operator is the spiritual successor to the kwasm-operator. kwasm has been developed as an experimental, simple way to install Wasm runtimes. This experiment has been relatively successful, as more and more users utilzed it to fiddle around with Wasm on Kubernetes. However, the kwasm-operator has some limitations that make it difficult to use in production. The containerd-shim-lifecycle-operator is an attempt to address these limitations to make it a reliable and secure way to deploy arbitrary containerd shims.
+The runtime-class-manager is the spiritual successor to the kwasm-operator. kwasm has been developed as an experimental, simple way to install Wasm runtimes. This experiment has been relatively successful, as more and more users utilzed it to fiddle around with Wasm on Kubernetes. However, the kwasm-operator has some limitations that make it difficult to use in production. The runtime-class-manager is an attempt to address these limitations to make it a reliable and secure way to deploy arbitrary containerd shims.
 
-The implementation of containerd-shim-lifecycle-operator follows [this](https://hackmd.io/TwC8Fc8wTCKdoWlgNOqTgA) community proposal.
+The implementation of runtime-class-manager follows [this](https://hackmd.io/TwC8Fc8wTCKdoWlgNOqTgA) community proposal.
 
 The name should be treated as a working title and is hopefully subject to change.
 
@@ -17,7 +17,7 @@ The name should be treated as a working title and is hopefully subject to change
 **Build and push your image to the location specified by `IMG`:**
 
 ```sh
-make docker-build docker-push IMG=<some-registry>/kwasm-operator:tag
+make docker-build docker-push IMG=<some-registry>/runtime-class-manager:tag
 ```
 
 **NOTE:** This image ought to be published in the personal registry you specified. 
@@ -33,7 +33,7 @@ make install
 **Deploy the Manager to the cluster with the image specified by `IMG`:**
 
 ```sh
-make deploy IMG=<some-registry>/kwasm-operator:tag
+make deploy IMG=<some-registry>/runtime-class-manager:tag
 ```
 
 > **NOTE**: If you encounter RBAC errors, you may need to grant yourself cluster-admin 

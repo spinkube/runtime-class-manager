@@ -33,8 +33,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
-	runtimev1alpha1 "github.com/kwasm/kwasm-operator/api/v1alpha1"
-	"github.com/kwasm/kwasm-operator/internal/controller"
+	runtimev1alpha1 "github.com/spinkube/runtime-class-manager/api/v1alpha1"
+	"github.com/spinkube/runtime-class-manager/internal/controller"
 	//+kubebuilder:scaffold:imports
 )
 

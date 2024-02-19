@@ -38,7 +38,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	kwasmv1 "github.com/kwasm/kwasm-operator/api/v1alpha1"
+	kwasmv1 "github.com/spinkube/runtime-class-manager/api/v1alpha1"
 )
 
 const (

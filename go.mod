@@ -1,4 +1,4 @@
-module github.com/kwasm/kwasm-operator
+module github.com/spinkube/runtime-class-manager
 
 go 1.21
 

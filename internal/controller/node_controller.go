@@ -23,7 +23,7 @@ package controller
 // 	"os"
 // 	"strings"
 
-// 	kwasmv1 "github.com/kwasm/kwasm-operator/api/v1alpha1"
+// 	kwasmv1 "github.com/spinkube/runtime-class-manager/api/v1alpha1"
 // 	"github.com/rs/zerolog/log"
 // 	batchv1 "k8s.io/api/batch/v1"
 // 	corev1 "k8s.io/api/core/v1"
