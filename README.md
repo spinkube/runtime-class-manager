@@ -1,6 +1,6 @@
 # runtime-class-manager
 
-The runtime-class-manager is the spiritual successor to the kwasm-operator. kwasm has been developed as an experimental, simple way to install Wasm runtimes. This experiment has been relatively successful, as more and more users utilzed it to fiddle around with Wasm on Kubernetes. However, the kwasm-operator has some limitations that make it difficult to use in production. The runtime-class-manager is an attempt to address these limitations to make it a reliable and secure way to deploy arbitrary containerd shims.
+The runtime-class-manager is the spiritual successor to the kwasm-operator. kwasm has been developed as an experimental, simple way to install Wasm runtimes. This experiment has been relatively successful, as more and more users utilized it to fiddle around with Wasm on Kubernetes. However, the kwasm-operator has some limitations that make it difficult to use in production. The runtime-class-manager is an attempt to address these limitations to make it a reliable and secure way to deploy arbitrary containerd shims.
 
 The implementation of runtime-class-manager follows [this](https://hackmd.io/TwC8Fc8wTCKdoWlgNOqTgA) community proposal.
 
