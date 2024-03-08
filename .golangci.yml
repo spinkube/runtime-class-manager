@@ -17,6 +17,9 @@ issues:
       linters:
         - revive
       text: "dot-imports: should not use dot imports"
+    - linters:
+        - gosec
+      text: "G306: Expect WriteFile permissions to be 0600 or less"
     - path: internal/controller/shim_controller.go
       linters:
         - unparam
