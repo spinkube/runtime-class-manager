@@ -12,13 +12,13 @@ import (
 	"github.com/spinkube/runtime-class-manager/pkg/config"
 )
 
-type state struct {
+type State struct {
 	Shims  map[string]*Shim `json:"shims"`
 	config *config.Config
 }
 
-func Get(config *config.Config) (*state, error) {
-	out := state{
+func Get(config *config.Config) (*State, error) {
+	out := State{
 		Shims:  make(map[string]*Shim),
 		config: config,
 	}
@@ -34,7 +34,7 @@ func Get(config *config.Config) (*state, error) {
 	return &out, nil
 }
 
-func (l *state) ShimChanged(shimName string, sha256 []byte, path string) bool {
+func (l *State) ShimChanged(shimName string, sha256 []byte, path string) bool {
 	shim, ok := l.Shims[shimName]
 	if !ok {
 		return true
@@ -43,15 +43,15 @@ func (l *state) ShimChanged(shimName string, sha256 []byte, path string) bool {
 	return !bytes.Equal(shim.Sha256, sha256) || shim.Path != path
 }
 
-func (l *state) UpdateShim(shimName string, shim Shim) {
+func (l *State) UpdateShim(shimName string, shim Shim) {
 	l.Shims[shimName] = &shim
 }
 
-func (l *state) RemoveShim(shimName string) {
+func (l *State) RemoveShim(shimName string) {
 	delete(l.Shims, shimName)
 }
 
-func (l *state) Write() error {
+func (l *State) Write() error {
 	out, err := json.MarshalIndent(l, "", " ")
 	if err != nil {
 		return fmt.Errorf("error marshalling state: %w", err)

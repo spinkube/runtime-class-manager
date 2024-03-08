@@ -58,7 +58,7 @@ func getPid() (int, error) {
 		return containerdProcessList[0].Pid(), nil
 	} else if len(containerdProcessList) == 0 {
 		return -1, fmt.Errorf("no containerd process found")
-	} else {
-		panic("multiple containerd processes found")
 	}
+
+	panic("multiple containerd processes found")
 }
