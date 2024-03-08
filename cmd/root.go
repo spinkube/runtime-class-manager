@@ -17,6 +17,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -63,7 +64,7 @@ func initializeConfig(cmd *cobra.Command) error {
 	v.AddConfigPath("/etc")
 
 	if err := v.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+		if errors.As(err, &viper.ConfigFileNotFoundError{}) {
 			return fmt.Errorf("error reading config file: %w", err)
 		}
 	}
