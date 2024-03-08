@@ -86,7 +86,7 @@ func RemoveRuntime(config *config.Config, shimPath string) (string, error) {
 	}
 
 	// Convert the file data to a string and replace the target string with an empty string.
-	modifiedData := strings.Replace(string(data), cfg, "", -1)
+	modifiedData := strings.ReplaceAll(string(data), cfg, "")
 
 	// Write the modified data back to the file.
 	err = os.WriteFile(configHostPath, []byte(modifiedData), 0o644)
