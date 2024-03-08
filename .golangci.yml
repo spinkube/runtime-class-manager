@@ -49,6 +49,7 @@ linters:
     # TODO: enable once we can set some exceptions
     - funlen
     - ifshort # deprecated
+    - varnamelen
 
 linters-settings:
   wrapcheck:
