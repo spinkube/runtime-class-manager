@@ -33,7 +33,7 @@ func RestartRuntime() error {
 
 	err = syscall.Kill(pid, syscall.SIGHUP)
 	if err != nil {
-		return fmt.Errorf("failed to send SIGHUP to containerd: %+v", err)
+		return fmt.Errorf("failed to send SIGHUP to containerd: %w", err)
 	}
 	return nil
 }
@@ -42,7 +42,7 @@ func getPid() (int, error) {
 	processList, err := ps.Processes()
 	if err != nil {
 		slog.Info("ps.Processes() Failed, are you using windows?")
-		return -1, fmt.Errorf("could not get processes: %+v", err)
+		return -1, fmt.Errorf("could not get processes: %w", err)
 	}
 
 	containerdProcessList := []ps.Process{}

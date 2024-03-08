@@ -59,7 +59,7 @@ func (l *State) Write() error {
 
 	slog.Info("writing lock file", "content", string(out))
 
-	return os.WriteFile(filePath(l.config), out, 0o644)
+	return fmt.Errorf("%w", os.WriteFile(filePath(l.config), out, 0o644))
 }
 
 func filePath(config *config.Config) string {

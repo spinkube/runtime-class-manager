@@ -38,7 +38,7 @@ func AddRuntime(config *config.Config, shimPath string) (string, error) {
 	// Containerd config file needs to exist, otherwise return the error
 	data, err := os.ReadFile(configHostPath)
 	if err != nil {
-		return configPath, fmt.Errorf("error reading containerd config file: %v", err)
+		return configPath, fmt.Errorf("error reading containerd config file: %w", err)
 	}
 
 	// Fail if config.toml already contains the runtimeName
@@ -53,14 +53,14 @@ func AddRuntime(config *config.Config, shimPath string) (string, error) {
 	// Open file in append mode
 	file, err := os.OpenFile(configHostPath, os.O_APPEND|os.O_WRONLY, 0o644)
 	if err != nil {
-		return configPath, fmt.Errorf("error opening containerd config file: %v", err)
+		return configPath, fmt.Errorf("error opening containerd config file: %w", err)
 	}
 	defer file.Close()
 
 	// Append config
 	_, err = file.WriteString(cfg)
 	if err != nil {
-		return configPath, fmt.Errorf("error writing to containerd config file: %v", err)
+		return configPath, fmt.Errorf("error writing to containerd config file: %w", err)
 	}
 
 	return configPath, nil
@@ -77,7 +77,7 @@ func RemoveRuntime(config *config.Config, shimPath string) (string, error) {
 	// Containerd config file needs to exist, otherwise return the error
 	data, err := os.ReadFile(configHostPath)
 	if err != nil {
-		return configPath, fmt.Errorf("error reading containerd config file: %v", err)
+		return configPath, fmt.Errorf("error reading containerd config file: %w", err)
 	}
 
 	// Fail if config.toml does not contain the runtimeName
