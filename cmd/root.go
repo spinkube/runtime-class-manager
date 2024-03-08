@@ -64,7 +64,7 @@ func initializeConfig(cmd *cobra.Command) error {
 
 	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-			return err
+			return fmt.Errorf("error reading config file: %w", err)
 		}
 	}
 

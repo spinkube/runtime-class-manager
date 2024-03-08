@@ -18,6 +18,7 @@ package shim
 
 import (
 	"crypto/sha256"
+	"fmt"
 	"io"
 	"os"
 	"path"
@@ -30,24 +31,24 @@ func Install(config *config.Config, shimName string) (string, bool, error) {
 	shimPath := config.AssetPath(shimName)
 	srcFile, err := os.OpenFile(shimPath, os.O_RDONLY, 0o000)
 	if err != nil {
-		return "", false, err
+		return "", false, fmt.Errorf("error opening shim: %w", err)
 	}
 	dstFilePath := path.Join(config.Kwasm.Path, "bin", shimName)
 	dstFilePathHost := config.PathWithHost(dstFilePath)
 
 	err = os.MkdirAll(path.Dir(dstFilePathHost), 0o755)
 	if err != nil {
-		return dstFilePath, false, err
+		return dstFilePath, false, fmt.Errorf("error creating directory: %w", err)
 	}
 
 	dstFile, err := os.OpenFile(dstFilePathHost, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o755)
 	if err != nil {
-		return "", false, err
+		return "", false, fmt.Errorf("error opening file: %w", err)
 	}
 
 	st, err := state.Get(config)
 	if err != nil {
-		return "", false, err
+		return "", false, fmt.Errorf("error getting state: %w", err)
 	}
 	shimSha256 := sha256.New()
 
@@ -60,9 +61,9 @@ func Install(config *config.Config, shimName string) (string, bool, error) {
 			Sha256: shimSha256.Sum(nil),
 		})
 		if err := st.Write(); err != nil {
-			return "", false, err
+			return "", false, fmt.Errorf("error writing state: %w", err)
 		}
 	}
 
-	return dstFilePath, changed, err
+	return dstFilePath, changed, fmt.Errorf("error installing shim: %w", err)
 }

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log/slog"
 	"os"
 	"path"
@@ -24,10 +25,10 @@ func Get(config *config.Config) (*state, error) {
 	content, err := os.ReadFile(filePath(config))
 	if err == nil {
 		err := json.Unmarshal(content, &out)
-		return &out, err
+		return &out, fmt.Errorf("error reading file: %w", err)
 	}
 	if !errors.Is(err, os.ErrNotExist) {
-		return nil, err
+		return nil, fmt.Errorf("error reading file: %w", err)
 	}
 
 	return &out, nil
@@ -53,7 +54,7 @@ func (l *state) RemoveShim(shimName string) {
 func (l *state) Write() error {
 	out, err := json.MarshalIndent(l, "", " ")
 	if err != nil {
-		return err
+		return fmt.Errorf("error marshalling state: %w", err)
 	}
 
 	slog.Info("writing lock file", "content", string(out))

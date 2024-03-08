@@ -11,7 +11,7 @@ import (
 func Uninstall(config *config.Config, shimName string) (string, error) {
 	st, err := state.Get(config)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error getting state: %w", err)
 	}
 	s := st.Shims[shimName]
 	if s == nil {
@@ -22,12 +22,12 @@ func Uninstall(config *config.Config, shimName string) (string, error) {
 
 	err = os.Remove(filePathHost)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error removing shim: %w", err)
 	}
 
 	st.RemoveShim(shimName)
 	if err := st.Write(); err != nil {
-		return "", err
+		return "", fmt.Errorf("error writing state: %w", err)
 	}
-	return filePath, err
+	return filePath, fmt.Errorf("error uninstalling shim: %w", err)
 }
