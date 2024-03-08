@@ -37,6 +37,7 @@ linters:
     - gofumpt
     - gomnd
     - maligned
+    - nosnakecase
     - nlreturn
     - paralleltest
     - scopelint
