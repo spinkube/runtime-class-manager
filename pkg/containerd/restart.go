@@ -32,7 +32,6 @@ func RestartRuntime() error {
 	slog.Info("found containerd pid", "pid", pid)
 
 	err = syscall.Kill(pid, syscall.SIGHUP)
-
 	if err != nil {
 		return fmt.Errorf("failed to send SIGHUP to containerd: %+v", err)
 	}
@@ -46,14 +45,13 @@ func getPid() (int, error) {
 		return -1, fmt.Errorf("could not get processes: %+v", err)
 	}
 
-	var containerdProcessList = []ps.Process{}
+	containerdProcessList := []ps.Process{}
 
 	for x := range processList {
 		process := processList[x]
 		if process.Executable() == "containerd" {
 			containerdProcessList = append(containerdProcessList, process)
 		}
-
 	}
 
 	if len(containerdProcessList) == 1 {
