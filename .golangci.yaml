@@ -12,7 +12,6 @@ run:
   # Default: 1m
   timeout: 3m
 
-
 # This file contains only configs which differ from defaults.
 # All possible options can be found here https://github.com/golangci/golangci-lint/blob/master/.golangci.reference.yml
 linters-settings:
@@ -117,6 +116,7 @@ linters-settings:
       - os.WriteFile
       - prometheus.ExponentialBuckets.*
       - prometheus.LinearBuckets
+      - math.Min
 
   govet:
     # Enable all analyzers.
@@ -163,6 +163,15 @@ linters-settings:
     # Default: false
     all: true
 
+  wrapcheck:
+    ignoreSigs:
+      - ".Complete("
+      - "client.IgnoreNotFound("
+      - "fmt.Errorf("
+
+  nestif:
+    min-complexity: 8
+
 
 linters:
   disable-all: true
@@ -183,8 +192,6 @@ linters:
     - dupl # tool for code clone detection
     - errname # checks that sentinel errors are prefixed with the Err and error types are suffixed with the Error
     - errorlint # finds code that will cause problems with the error wrapping scheme introduced in Go 1.13
-    - exhaustive # checks exhaustiveness of enum switch statements
-    - exhaustruct # checks if all structure fields are initialized
     - exportloopref # checks for pointers to enclosing loop variables
     - forbidigo # forbids identifiers
     - funlen # tool for detection of long functions
@@ -192,7 +199,6 @@ linters:
     - goconst # finds repeated strings that could be replaced by a constant
     - gocritic # provides diagnostics that check for bugs, performance and style issues
     - gocyclo # computes and checks the cyclomatic complexity of functions
-    - godot # checks if comments end in a period
     - goimports # in addition to fixing imports, goimports also formats your code in the same style as gofmt
     - gomnd # detects magic numbers
     - goprintffuncname # checks that printf-like functions are named with f at the end
@@ -221,6 +227,8 @@ linters:
     - whitespace # detects leading and trailing whitespace
 
     ## you may want to enable
+    #- exhaustive # checks exhaustiveness of enum switch statements
+    #- exhaustruct # checks if all structure fields are initialized
     #- decorder # checks declaration order and count of types, constants, variables and functions
     #- gci # controls golang package import order and makes it always deterministic
     #- ginkgolinter # [if you use ginkgo/gomega] enforces standards of using ginkgo and gomega
@@ -236,6 +244,7 @@ linters:
     #- zerologlint # detects the wrong usage of zerolog that a user forgets to dispatch zerolog.Event
 
     ## disabled
+    #- godot # checks if comments end in a period
     #- containedctx # detects struct contained context.Context field
     #- contextcheck # [too many false positives] checks the function whether use a non-inherited context
     #- depguard # [replaced by gomodguard] checks if package imports are in a list of acceptable packages
@@ -269,12 +278,8 @@ linters:
     #- structcheck # [deprecated, replaced by unused] finds unused struct fields
     #- varcheck # [deprecated, replaced by unused] finds unused global variables and constants
 
-
 issues:
-  # Maximum count of issues with the same text.
-  # Set to 0 to disable.
-  # Default: 3
-  max-same-issues: 50
+  max-same-issues: 30
 
   exclude-rules:
     - source: "(noinspection|TODO)"
@@ -290,3 +295,20 @@ issues:
         - gosec
         - noctx
         - wrapcheck
+    - linters:
+        - funlen
+      # Disable 'funlen' linter for test functions.
+      # It's common for table-driven tests to be more than 60 characters long
+      source: "^func Test"
+    - path: '(.+)_test\.go'
+      linters:
+        - revive
+      text: "dot-imports: should not use dot imports"
+    - path: internal/controller/shim_controller.go
+      linters:
+        - unparam
+      source: "ctrl.Result"
+    - path: pkg/containerd/restart_unix.go
+      linters:
+        - revive
+      text: "exported: type name will be used as containerd.ContainerdRestarter by other packages, and that stutters; consider calling this Restarter"
