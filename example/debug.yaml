@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kwasm-debug
+  labels:
+    app: default
+spec:
+  selector:
+    matchLabels:
+      app: default
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: kwasm-debug
+        app: default
+    spec:
+      hostPID: true
+      volumes:
+        - name: node-root
+          hostPath:
+            path: /
+        - name: entrypoint
+          configMap:
+            name: entrypoint
+            defaultMode: 0744
+      containers:
+        - image: ubuntu
+          name: kwasm-debug
+          command:
+            - sh
+            - -c
+            - "tail -f /dev/null"
+          env:
+            - name: NODE_ROOT
+              value: /mnt/node-root
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: node-root
+              mountPath: /mnt/node-root/
