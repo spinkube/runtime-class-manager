@@ -19,9 +19,9 @@ package cmd_test
 import (
 	"testing"
 
-	"github.com/kwasm/kwasm-node-installer/cmd"
-	"github.com/kwasm/kwasm-node-installer/tests"
 	"github.com/spf13/afero"
+	"github.com/spinkube/runtime-class-manager/cmd"
+	"github.com/spinkube/runtime-class-manager/tests"
 	"github.com/stretchr/testify/require"
 )
 

@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/kwasm/kwasm-node-installer/pkg/state"
+	"github.com/spinkube/runtime-class-manager/pkg/state"
 )
 
 func (c *Config) Uninstall(shimName string) (string, error) {

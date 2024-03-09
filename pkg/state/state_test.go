@@ -3,9 +3,9 @@ package state_test
 import (
 	"testing"
 
-	"github.com/kwasm/kwasm-node-installer/pkg/state"
-	"github.com/kwasm/kwasm-node-installer/tests"
 	"github.com/spf13/afero"
+	"github.com/spinkube/runtime-class-manager/pkg/state"
+	"github.com/spinkube/runtime-class-manager/tests"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

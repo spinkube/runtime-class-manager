@@ -16,7 +16,7 @@
 
 package main
 
-import "github.com/kwasm/kwasm-node-installer/cmd"
+import "github.com/spinkube/runtime-class-manager/cmd"
 
 func main() {
 	cmd.Execute()

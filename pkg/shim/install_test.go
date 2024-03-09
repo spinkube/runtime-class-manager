@@ -19,8 +19,8 @@ package shim //nolint:testpackage // whitebox test
 import (
 	"testing"
 
-	"github.com/kwasm/kwasm-node-installer/tests"
 	"github.com/spf13/afero"
+	"github.com/spinkube/runtime-class-manager/tests"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -52,7 +52,8 @@ func TestConfig_Install(t *testing.T) {
 				tests.FixtureFs("../../testdata"),
 				tests.FixtureFs("../../testdata/shim"),
 				"/assets",
-				"/opt/kwasm"},
+				"/opt/kwasm",
+			},
 			args{"containerd-shim-spin-v1"},
 			wants{
 				"/opt/kwasm/bin/containerd-shim-spin-v1",
@@ -66,7 +67,8 @@ func TestConfig_Install(t *testing.T) {
 				tests.FixtureFs("../../testdata"),
 				tests.FixtureFs("../../testdata/shim"),
 				"/assets",
-				"/opt/kwasm"},
+				"/opt/kwasm",
+			},
 			args{"containerd-shim-slight-v1"},
 			wants{
 				"/opt/kwasm/bin/containerd-shim-slight-v1",
@@ -80,7 +82,8 @@ func TestConfig_Install(t *testing.T) {
 				afero.NewMemMapFs(),
 				tests.FixtureFs("../../testdata/shim"),
 				"/assets",
-				"/opt/kwasm"},
+				"/opt/kwasm",
+			},
 			args{"some-shim"},
 			wants{
 				"",
@@ -94,7 +97,8 @@ func TestConfig_Install(t *testing.T) {
 				tests.FixtureFs("../../testdata"),
 				afero.NewReadOnlyFs(tests.FixtureFs("../../testdata/shim")),
 				"/assets",
-				"/opt/kwasm"},
+				"/opt/kwasm",
+			},
 			args{"containerd-shim-spin-v1"},
 			wants{
 				"/opt/kwasm/bin/containerd-shim-spin-v1",
