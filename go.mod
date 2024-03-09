@@ -7,7 +7,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.15.0
 	github.com/onsi/gomega v1.31.1
 	github.com/prometheus/common v0.48.0
-	github.com/rs/zerolog v1.31.0
+	github.com/rs/zerolog v1.32.0
 	github.com/spf13/afero v1.11.0
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
