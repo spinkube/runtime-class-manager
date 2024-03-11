@@ -20,7 +20,7 @@ import (
 	"testing"
 
 	"github.com/spf13/afero"
-	"github.com/spinkube/runtime-class-manager/cmd/node-installer"
+	main "github.com/spinkube/runtime-class-manager/cmd/node-installer"
 	"github.com/spinkube/runtime-class-manager/tests"
 	"github.com/stretchr/testify/require"
 )
