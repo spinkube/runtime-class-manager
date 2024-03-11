@@ -20,7 +20,7 @@ import (
 	"testing"
 
 	"github.com/spf13/afero"
-	"github.com/spinkube/runtime-class-manager/tests"
+	tests "github.com/spinkube/runtime-class-manager/tests/node-installer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -49,8 +49,8 @@ func TestConfig_Install(t *testing.T) {
 		{
 			"no changes to shim",
 			fields{
-				tests.FixtureFs("../../testdata"),
-				tests.FixtureFs("../../testdata/shim"),
+				tests.FixtureFs("../../testdata/node-installer"),
+				tests.FixtureFs("../../testdata/node-installer/shim"),
 				"/assets",
 				"/opt/kwasm",
 			},
@@ -64,8 +64,8 @@ func TestConfig_Install(t *testing.T) {
 		{
 			"install new shim over old",
 			fields{
-				tests.FixtureFs("../../testdata"),
-				tests.FixtureFs("../../testdata/shim"),
+				tests.FixtureFs("../../testdata/node-installer"),
+				tests.FixtureFs("../../testdata/node-installer/shim"),
 				"/assets",
 				"/opt/kwasm",
 			},
@@ -80,7 +80,7 @@ func TestConfig_Install(t *testing.T) {
 			"unable to find new shim",
 			fields{
 				afero.NewMemMapFs(),
-				tests.FixtureFs("../../testdata/shim"),
+				tests.FixtureFs("../../testdata/node-installer/shim"),
 				"/assets",
 				"/opt/kwasm",
 			},
@@ -94,8 +94,8 @@ func TestConfig_Install(t *testing.T) {
 		{
 			"unable to write to hostFs",
 			fields{
-				tests.FixtureFs("../../testdata"),
-				afero.NewReadOnlyFs(tests.FixtureFs("../../testdata/shim")),
+				tests.FixtureFs("../../testdata/node-installer"),
+				afero.NewReadOnlyFs(tests.FixtureFs("../../testdata/node-installer/shim")),
 				"/assets",
 				"/opt/kwasm",
 			},

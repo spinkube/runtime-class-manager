@@ -21,7 +21,7 @@ import (
 
 	"github.com/spf13/afero"
 	main "github.com/spinkube/runtime-class-manager/cmd/node-installer"
-	"github.com/spinkube/runtime-class-manager/tests"
+	tests "github.com/spinkube/runtime-class-manager/tests/node-installer"
 	"github.com/stretchr/testify/require"
 )
 
@@ -56,8 +56,8 @@ func Test_RunInstall(t *testing.T) {
 					}{"/opt/kwasm", "/assets"},
 					struct{ RootPath string }{"/containerd/missing-containerd-shim-config"},
 				},
-				tests.FixtureFs("../../testdata"),
-				tests.FixtureFs("../../testdata/containerd/missing-containerd-shim-config"),
+				tests.FixtureFs("../../testdata/node-installer"),
+				tests.FixtureFs("../../testdata/node-installer/containerd/missing-containerd-shim-config"),
 			},
 			false,
 		},
@@ -75,8 +75,8 @@ func Test_RunInstall(t *testing.T) {
 					}{"/opt/kwasm", "/assets"},
 					struct{ RootPath string }{"/containerd/existing-containerd-shim-config"},
 				},
-				tests.FixtureFs("../../testdata"),
-				tests.FixtureFs("../../testdata/containerd/existing-containerd-shim-config"),
+				tests.FixtureFs("../../testdata/node-installer"),
+				tests.FixtureFs("../../testdata/node-installer/containerd/existing-containerd-shim-config"),
 			},
 			false,
 		},
