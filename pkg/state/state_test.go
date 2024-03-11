@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/afero"
 	"github.com/spinkube/runtime-class-manager/pkg/state"
-	"github.com/spinkube/runtime-class-manager/tests"
+	tests "github.com/spinkube/runtime-class-manager/tests/node-installer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -24,7 +24,7 @@ func TestGet(t *testing.T) {
 		{
 			"existing state",
 			args{
-				tests.FixtureFs("../../testdata/containerd/existing-containerd-shim-config"),
+				tests.FixtureFs("../../testdata/node-installer/containerd/existing-containerd-shim-config"),
 				"/opt/kwasm",
 			},
 			&state.State{
@@ -40,7 +40,7 @@ func TestGet(t *testing.T) {
 		{
 			"missing state",
 			args{
-				tests.FixtureFs("../../testdata/containerd/missing-containerd-shim-config"),
+				tests.FixtureFs("../../testdata/node-installer/containerd/missing-containerd-shim-config"),
 				"/opt/kwasm",
 			},
 			&state.State{
