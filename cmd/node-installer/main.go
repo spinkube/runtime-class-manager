@@ -16,8 +16,6 @@
 
 package main
 
-import "github.com/spinkube/runtime-class-manager/cmd"
-
 func main() {
-	cmd.Execute()
+	Execute()
 }

@@ -14,13 +14,13 @@
    limitations under the License.
 */
 
-package cmd_test
+package main_test
 
 import (
 	"testing"
 
 	"github.com/spf13/afero"
-	"github.com/spinkube/runtime-class-manager/cmd"
+	main "github.com/spinkube/runtime-class-manager/cmd/node-installer"
 	"github.com/spinkube/runtime-class-manager/tests"
 	"github.com/stretchr/testify/require"
 )
@@ -33,7 +33,7 @@ func (n nullRestarter) Restart() error {
 
 func Test_RunInstall(t *testing.T) {
 	type args struct {
-		config cmd.Config
+		config main.Config
 		rootFs afero.Fs
 		hostFs afero.Fs
 	}
@@ -45,7 +45,7 @@ func Test_RunInstall(t *testing.T) {
 		{
 			"new shim",
 			args{
-				cmd.Config{
+				main.Config{
 					struct {
 						Name       string
 						ConfigPath string
@@ -56,15 +56,15 @@ func Test_RunInstall(t *testing.T) {
 					}{"/opt/kwasm", "/assets"},
 					struct{ RootPath string }{"/containerd/missing-containerd-shim-config"},
 				},
-				tests.FixtureFs("../testdata"),
-				tests.FixtureFs("../testdata/containerd/missing-containerd-shim-config"),
+				tests.FixtureFs("../../testdata"),
+				tests.FixtureFs("../../testdata/containerd/missing-containerd-shim-config"),
 			},
 			false,
 		},
 		{
 			"existing shim",
 			args{
-				cmd.Config{
+				main.Config{
 					struct {
 						Name       string
 						ConfigPath string
@@ -75,15 +75,15 @@ func Test_RunInstall(t *testing.T) {
 					}{"/opt/kwasm", "/assets"},
 					struct{ RootPath string }{"/containerd/existing-containerd-shim-config"},
 				},
-				tests.FixtureFs("../testdata"),
-				tests.FixtureFs("../testdata/containerd/existing-containerd-shim-config"),
+				tests.FixtureFs("../../testdata"),
+				tests.FixtureFs("../../testdata/containerd/existing-containerd-shim-config"),
 			},
 			false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := cmd.RunInstall(tt.args.config, tt.args.rootFs, tt.args.hostFs, nullRestarter{})
+			err := main.RunInstall(tt.args.config, tt.args.rootFs, tt.args.hostFs, nullRestarter{})
 			if tt.wantErr {
 				require.Error(t, err)
 			} else {

@@ -7,7 +7,7 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 go build -o kwasm-node-installer cmd/node-installer/main.go
+RUN CGO_ENABLED=0 go build -o kwasm-node-installer ./cmd/node-installer
 RUN /app/kwasm-node-installer -h
 
 FROM scratch
