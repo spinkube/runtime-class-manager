@@ -5,14 +5,9 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 
-COPY pkg ./pkg
-COPY cmd ./cmd
-COPY *.go ./
-COPY testdata ./testdata
+COPY . .
 
-RUN go test ./...
-
-RUN CGO_ENABLED=0 go build -o kwasm-node-installer
+RUN CGO_ENABLED=0 go build -o kwasm-node-installer cmd/node-installer/main.go
 RUN /app/kwasm-node-installer -h
 
 FROM scratch
