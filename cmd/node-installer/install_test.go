@@ -14,13 +14,13 @@
    limitations under the License.
 */
 
-package cmd_test
+package main_test
 
 import (
 	"testing"
 
 	"github.com/spf13/afero"
-	"github.com/spinkube/runtime-class-manager/cmd"
+	"github.com/spinkube/runtime-class-manager/cmd/node-installer"
 	"github.com/spinkube/runtime-class-manager/tests"
 	"github.com/stretchr/testify/require"
 )
