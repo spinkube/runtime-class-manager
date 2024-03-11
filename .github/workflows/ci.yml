@@ -3,6 +3,8 @@ name: CI
 on:
   workflow_call:
   push:
+    branches:
+      - 'main'
   pull_request:
 
 # Declare default permissions as read only.
