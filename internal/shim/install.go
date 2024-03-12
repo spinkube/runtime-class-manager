@@ -23,7 +23,7 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/spinkube/runtime-class-manager/pkg/state"
+	"github.com/spinkube/runtime-class-manager/internal/state"
 )
 
 func (c *Config) Install(shimName string) (filePath string, changed bool, err error) {

@@ -25,8 +25,8 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 
-	"github.com/spinkube/runtime-class-manager/pkg/containerd"
-	"github.com/spinkube/runtime-class-manager/pkg/shim"
+	"github.com/spinkube/runtime-class-manager/internal/containerd"
+	"github.com/spinkube/runtime-class-manager/internal/shim"
 )
 
 // uninstallCmd represents the uninstall command.
