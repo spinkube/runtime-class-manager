@@ -36,7 +36,7 @@ var uninstallCmd = &cobra.Command{
 	Run: func(_ *cobra.Command, _ []string) {
 		rootFs := afero.NewOsFs()
 		hostFs := afero.NewBasePathFs(rootFs, config.Host.RootPath)
-		restarter := containerd.ContainerdRestarter{}
+		restarter := containerd.NewRestarter()
 
 		if err := RunUninstall(config, rootFs, hostFs, restarter); err != nil {
 			slog.Error("failed to uninstall", "error", err)

@@ -36,7 +36,7 @@ var installCmd = &cobra.Command{
 	Run: func(_ *cobra.Command, _ []string) {
 		rootFs := afero.NewOsFs()
 		hostFs := afero.NewBasePathFs(rootFs, config.Host.RootPath)
-		restarter := containerd.ContainerdRestarter{}
+		restarter := containerd.NewRestarter()
 
 		if err := RunInstall(config, rootFs, hostFs, restarter); err != nil {
 			slog.Error("failed to install", "error", err)
