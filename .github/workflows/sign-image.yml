@@ -28,6 +28,5 @@ jobs:
 
       - name: Sign container image
         run: |
-          IMG_REPOSITORY_NAME=$( echo ${{ github.repository_owner }} | awk '{print tolower($0)}' )
           cosign sign --yes \
-            ghcr.io/${IMG_REPOSITORY_NAME}/${{ github.repository }}@${{ inputs.image-digest }}
+            ghcr.io/${{ github.repository }}@${{ inputs.image-digest }}
