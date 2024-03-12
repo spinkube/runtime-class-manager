@@ -24,7 +24,7 @@ import (
 	"strings"
 
 	"github.com/spf13/afero"
-	"github.com/spinkube/runtime-class-manager/pkg/shim"
+	"github.com/spinkube/runtime-class-manager/internal/shim"
 )
 
 type Restarter interface {

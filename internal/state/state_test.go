@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/spf13/afero"
-	"github.com/spinkube/runtime-class-manager/pkg/state"
+	"github.com/spinkube/runtime-class-manager/internal/state"
 	tests "github.com/spinkube/runtime-class-manager/tests/node-installer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

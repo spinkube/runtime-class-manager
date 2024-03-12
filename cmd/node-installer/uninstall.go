@@ -25,8 +25,8 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 
-	"github.com/spinkube/runtime-class-manager/pkg/containerd"
-	"github.com/spinkube/runtime-class-manager/pkg/shim"
+	"github.com/spinkube/runtime-class-manager/internal/containerd"
+	"github.com/spinkube/runtime-class-manager/internal/shim"
 )
 
 // uninstallCmd represents the uninstall command.
@@ -36,7 +36,7 @@ var uninstallCmd = &cobra.Command{
 	Run: func(_ *cobra.Command, _ []string) {
 		rootFs := afero.NewOsFs()
 		hostFs := afero.NewBasePathFs(rootFs, config.Host.RootPath)
-		restarter := containerd.ContainerdRestarter{}
+		restarter := containerd.NewRestarter()
 
 		if err := RunUninstall(config, rootFs, hostFs, restarter); err != nil {
 			slog.Error("failed to uninstall", "error", err)
