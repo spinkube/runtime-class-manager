@@ -27,9 +27,8 @@ func (c *Config) Uninstall(shimName string) (string, error) {
 		}
 		slog.Warn("shim binary did not exist, nothing to delete")
 	}
-
 	st.RemoveShim(shimName)
-	if err := st.Write(); err != nil {
+	if err = st.Write(); err != nil {
 		return "", err
 	}
 	return filePath, err

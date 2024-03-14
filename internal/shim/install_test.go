@@ -47,6 +47,21 @@ func TestConfig_Install(t *testing.T) {
 		wantErr bool
 	}{
 		{
+			"successful shim installation",
+			fields{
+				tests.FixtureFs("../../testdata/node-installer"),
+				afero.NewMemMapFs(),
+				"/assets",
+				"/opt/kwasm",
+			},
+			args{"containerd-shim-slight-v1"},
+			wants{
+				"/opt/kwasm/bin/containerd-shim-slight-v1",
+				true,
+			},
+			false,
+		},
+		{
 			"no changes to shim",
 			fields{
 				tests.FixtureFs("../../testdata/node-installer"),
