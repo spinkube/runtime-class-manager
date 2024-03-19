@@ -3,6 +3,9 @@ name: Generate SBOMs
 on:
   workflow_call:
     inputs:
+      image-name:
+        type: string
+        required: true
       image-digest:
         type: string
         required: true
@@ -42,7 +45,7 @@ jobs:
           set -e
           DIGEST=$(crane digest \
             --platform "linux/${{ matrix.arch }}" \
-            ghcr.io/${{ github.repository }}@${{ inputs.image-digest }})
+            ghcr.io/${{ github.repository_owner}}/${{ inputs.image-name }}@${{ inputs.image-digest }})
           echo "PLATFORM_DIGEST=${DIGEST}" >> "$GITHUB_ENV"
 
       - name: Create SBOM file
@@ -50,22 +53,22 @@ jobs:
         run: |
           syft \
             -o spdx-json \
-            --file runtime-class-manager-sbom-${{ matrix.arch }}.spdx \
-            ghcr.io/${{ github.repository }}@${{ env.PLATFORM_DIGEST }}
+            --file ${{ inputs.image-name }}-sbom-${{ matrix.arch }}.spdx \
+            ghcr.io/${{ github.repository_owner }}/${{ inputs.image-name }}@${{ env.PLATFORM_DIGEST }}
 
       - name: Sign SBOM file
         run: |
           cosign sign-blob --yes \
-            --output-certificate runtime-class-manager-sbom-${{ matrix.arch }}.spdx.cert \
-            --output-signature runtime-class-manager-sbom-${{ matrix.arch }}.spdx.sig \
-            runtime-class-manager-sbom-${{ matrix.arch }}.spdx
+            --output-certificate ${{ inputs.image-name }}-sbom-${{ matrix.arch }}.spdx.cert \
+            --output-signature ${{ inputs.image-name }}-sbom-${{ matrix.arch }}.spdx.sig \
+            ${{ inputs.image-name }}-sbom-${{ matrix.arch }}.spdx
 
       - name: Attach SBOM file in the container image
         shell: bash
         run: |
           cosign attach \
-            sbom --sbom runtime-class-manager-sbom-${{ matrix.arch }}.spdx \
-            ghcr.io/${{ github.repository }}@${{ env.PLATFORM_DIGEST }}
+            sbom --sbom ${{ inputs.image-name }}-sbom-${{ matrix.arch }}.spdx \
+            ghcr.io/${{ github.repository_owner }}/${{ inputs.image-name }}@${{ env.PLATFORM_DIGEST }}
 
       - name: Sign SBOM file pushed to OCI registry
         shell: bash
@@ -74,10 +77,10 @@ jobs:
           SBOM_TAG="$(echo ${{ env.PLATFORM_DIGEST }} | sed -e 's/:/-/g').sbom"
 
           cosign sign --yes \
-            ghcr.io/${{ github.repository }}:${SBOM_TAG}
+            ghcr.io/${{ github.repository_owner }}/${{ inputs.image-name }}:${SBOM_TAG}
 
       - name: Upload SBOMs as artifacts
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
           name: sbom-${{ matrix.arch }}
-          path: runtime-class-manager-sbom-*
+          path: ${{ inputs.image-name }}-sbom-*
