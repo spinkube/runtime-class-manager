@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/mitchellh/go-ps v1.0.0
 	github.com/onsi/ginkgo/v2 v2.17.0
-	github.com/onsi/gomega v1.31.1
+	github.com/onsi/gomega v1.32.0
 	github.com/prometheus/common v0.50.0
 	github.com/rs/zerolog v1.32.0
 	github.com/spf13/afero v1.11.0
