@@ -82,5 +82,5 @@ jobs:
       - name: Upload SBOMs as artifacts
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
-          name: sbom-${{ matrix.arch }}
+          name: ${{ inputs.image-name }}-sbom-${{ matrix.arch }}
           path: ${{ inputs.image-name }}-sbom-*

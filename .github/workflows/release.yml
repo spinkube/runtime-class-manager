@@ -10,21 +10,34 @@ permissions: read-all
 jobs:
   ci:
     uses: ./.github/workflows/ci.yml
-    permissions: read-all
+    permissions:
+      contents: read
+      pull-requests: read
+      checks: write
 
-  build:
-    name: Build container image, sign it, and generate SBOMs
-    uses: ./.github/workflows/container-build.yml
+  build-manager:
+    name: Build manager image, sign it, and generate SBOMs
+    uses: ./.github/workflows/manager-build.yml
     permissions:
       id-token: write
       packages: write
+      contents: read
+
+  build-installer:
+    name: Build installer image, sign it, and generate SBOMs
+    uses: ./.github/workflows/installer-build.yml
+    permissions:
+      id-token: write
+      packages: write
+      contents: read
 
   release:
     name: Create release
 
     needs:
       - ci
-      - build
+      - build-manager
+      - build-installer
 
     permissions:
       contents: write
@@ -73,7 +86,7 @@ jobs:
       - name: Download SBOM artifact
         uses: actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427 # v4.1.4
         with:
-          pattern: sbom-*
+          pattern: "*-sbom-*"
           path: ./
           merge-multiple: true
 
@@ -89,12 +102,19 @@ jobs:
             let path = require('path');
 
             let files = [
-              '${{ github.repository }}-sbom-amd64.spdx',
-              '${{ github.repository }}-sbom-amd64.spdx.cert',
-              '${{ github.repository }}-sbom-amd64.spdx.sig',
-              '${{ github.repository }}-sbom-arm64.spdx',
-              '${{ github.repository }}-sbom-arm64.spdx.cert',
-              '${{ github.repository }}-sbom-arm64.spdx.sig']
+              'runtime-class-manager-sbom-amd64.spdx',
+              'runtime-class-manager-sbom-amd64.spdx.cert',
+              'runtime-class-manager-sbom-amd64.spdx.sig',
+              'runtime-class-manager-sbom-arm64.spdx',
+              'runtime-class-manager-sbom-arm64.spdx.cert',
+              'runtime-class-manager-sbom-arm64.spdx.sig',
+              'node-installer-sbom-amd64.spdx',
+              'node-installer-sbom-amd64.spdx.cert',
+              'node-installer-sbom-amd64.spdx.sig',
+              'node-installer-sbom-arm64.spdx',
+              'node-installer-sbom-arm64.spdx.cert',
+              'node-installer-sbom-arm64.spdx.sig',
+            ]
             const {RELEASE_ID} = process.env
 
             for (const file of files) {
