@@ -3,6 +3,9 @@ name: Sign image
 on:
   workflow_call:
     inputs:
+      image-repository:
+        type: string
+        required: true
       image-digest:
         type: string
         required: true
@@ -29,4 +32,4 @@ jobs:
       - name: Sign container image
         run: |
           cosign sign --yes \
-            ghcr.io/${{ github.repository }}@${{ inputs.image-digest }}
+            ${{ inputs.image-repository }}@${{ inputs.image-digest }}

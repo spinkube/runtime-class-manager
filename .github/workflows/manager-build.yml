@@ -1,4 +1,4 @@
-name: Build container image, sign it, and generate SBOMs
+name: Build manager image, sign it, and generate SBOMs
 
 on:
   workflow_call:
@@ -19,6 +19,7 @@ jobs:
       contents: read
       packages: write
     with:
+      image-name: runtime-class-manager
       push-image: true
 
   sign:
@@ -28,6 +29,7 @@ jobs:
       packages: write
       id-token: write
     with:
+      image-repository: ${{ needs.build.outputs.repository }}
       image-digest: ${{ needs.build.outputs.digest }}
 
   sbom:
@@ -37,4 +39,5 @@ jobs:
       packages: write
       id-token: write
     with:
+      image-name: runtime-class-manager
       image-digest: ${{ needs.build.outputs.digest }}
