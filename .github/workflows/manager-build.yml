@@ -20,6 +20,7 @@ jobs:
       packages: write
     with:
       image-name: runtime-class-manager
+      dockerfile: ./Dockerfile
       push-image: true
 
   sign:

@@ -20,6 +20,7 @@ jobs:
       packages: write
     with:
       image-name: node-installer
+      dockerfile: ./images/installer/Dockerfile
       push-image: true
 
   sign:

@@ -6,6 +6,13 @@ on:
       image-name:
         type: string
         required: true
+      dockerfile:
+        type: string
+        required: true
+      docker-context:
+        type: string
+        required: false
+        default: "."
       push-image:
         type: boolean
         required: true
@@ -62,8 +69,8 @@ jobs:
         id: build-image
         uses: docker/build-push-action@af5a7ed5ba88268d5278f7203fb52cd833f66d6e # v5.2.0
         with:
-          context: .
-          file: ./Dockerfile
+          context: ${{ inputs.docker-context }}
+          file: ${{ inputs.dockerfile }}
           platforms: linux/amd64, linux/arm64
           push: true
           tags: |
