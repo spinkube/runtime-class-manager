@@ -3,6 +3,16 @@ name: Build container image
 on:
   workflow_call:
     inputs:
+      image-name:
+        type: string
+        required: true
+      dockerfile:
+        type: string
+        required: true
+      docker-context:
+        type: string
+        required: false
+        default: "."
       push-image:
         type: boolean
         required: true
@@ -59,15 +69,15 @@ jobs:
         id: build-image
         uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0 # v5.3.0
         with:
-          context: .
-          file: ./Dockerfile
+          context: ${{ inputs.docker-context }}
+          file: ${{ inputs.dockerfile }}
           platforms: linux/amd64, linux/arm64
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}:${{ env.TAG_NAME }}
+            ghcr.io/${{ github.repository_owner }}/${{ inputs.image-name }}:${{ env.TAG_NAME }}
       - id: setoutput
         name: Set output parameters
         run: |
-          echo "repository=ghcr.io/${{ github.repository }}" >> $GITHUB_OUTPUT
+          echo "repository=ghcr.io/${{ github.repository_owner }}/${{ inputs.image-name }}" >> $GITHUB_OUTPUT
           echo "tag=${{ env.TAG_NAME }}" >> $GITHUB_OUTPUT
           echo "digest=${{ steps.build-image.outputs.digest }}" >> $GITHUB_OUTPUT

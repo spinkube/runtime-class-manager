@@ -1,0 +1,44 @@
+name: Build manager image, sign it, and generate SBOMs
+
+on:
+  workflow_call:
+    outputs:
+      digest:
+        description: "Container image digest"
+        value: ${{jobs.build.outputs.digest}}
+
+  push:
+    branches:
+      - "main"
+      - "feat-**"
+
+jobs:
+  build:
+    uses: ./.github/workflows/container-image.yml
+    permissions:
+      contents: read
+      packages: write
+    with:
+      image-name: runtime-class-manager
+      dockerfile: ./Dockerfile
+      push-image: true
+
+  sign:
+    needs: build
+    uses: ./.github/workflows/sign-image.yml
+    permissions:
+      packages: write
+      id-token: write
+    with:
+      image-repository: ${{ needs.build.outputs.repository }}
+      image-digest: ${{ needs.build.outputs.digest }}
+
+  sbom:
+    needs: build
+    uses: ./.github/workflows/sbom.yml
+    permissions:
+      packages: write
+      id-token: write
+    with:
+      image-name: runtime-class-manager
+      image-digest: ${{ needs.build.outputs.digest }}

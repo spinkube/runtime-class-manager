@@ -1,4 +1,4 @@
-name: Build container image, sign it, and generate SBOMs
+name: Build installer image, sign it, and generate SBOMs
 
 on:
   workflow_call:
@@ -19,6 +19,8 @@ jobs:
       contents: read
       packages: write
     with:
+      image-name: node-installer
+      dockerfile: ./images/installer/Dockerfile
       push-image: true
 
   sign:
@@ -28,6 +30,7 @@ jobs:
       packages: write
       id-token: write
     with:
+      image-repository: ${{ needs.build.outputs.repository }}
       image-digest: ${{ needs.build.outputs.digest }}
 
   sbom:
@@ -37,4 +40,5 @@ jobs:
       packages: write
       id-token: write
     with:
+      image-name: node-installer
       image-digest: ${{ needs.build.outputs.digest }}
