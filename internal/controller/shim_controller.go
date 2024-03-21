@@ -313,6 +313,36 @@ func (sr *ShimReconciler) createJobManifest(shim *kwasmv1.Shim, node *corev1.Nod
 	name := node.Name + "-" + shim.Name + "-" + operation
 	nameMax := int(math.Min(float64(len(name)), 63))
 
+	initContainer := []corev1.Container{{}}
+	args := []string{"uninstall"}
+
+	if operation == INSTALL {
+		initContainer = []corev1.Container{{
+			Image: "ghcr.io/spinkube/shim-downloader:latest",
+			Name:  "downloader",
+			SecurityContext: &corev1.SecurityContext{
+				Privileged: &priv,
+			},
+			Env: []corev1.EnvVar{
+				{
+					Name:  "SHIM_LOCATION",
+					Value: shim.Spec.FetchStrategy.AnonHTTP.Location,
+				},
+			},
+			VolumeMounts: []corev1.VolumeMount{
+				{
+					Name:      "shim-download",
+					MountPath: "/assets",
+				},
+			},
+		}}
+		args = []string{
+			"install",
+			"-H",
+			"/mnt/node-root",
+		}
+	}
+
 	job := &batchv1.Job{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Job",
@@ -338,36 +368,31 @@ func (sr *ShimReconciler) createJobManifest(shim *kwasmv1.Shim, node *corev1.Nod
 				Spec: corev1.PodSpec{
 					NodeName: node.Name,
 					HostPID:  true,
-					Volumes: []corev1.Volume{{
-						Name: "root-mount",
-						VolumeSource: corev1.VolumeSource{
-							HostPath: &corev1.HostPathVolumeSource{
-								Path: "/",
+					Volumes: []corev1.Volume{
+						{
+							Name: "shim-download",
+						},
+						{
+							Name: "root-mount",
+							VolumeSource: corev1.VolumeSource{
+								HostPath: &corev1.HostPathVolumeSource{
+									Path: "/",
+								},
 							},
 						},
-					}},
+					},
+					InitContainers: initContainer,
 					Containers: []corev1.Container{{
-						Image: "voigt/kwasm-node-installer:" + operation,
+						Image: "ghcr.io/spinkube/node-installer:latest",
+						Args:  args,
 						Name:  "provisioner",
 						SecurityContext: &corev1.SecurityContext{
 							Privileged: &priv,
 						},
 						Env: []corev1.EnvVar{
 							{
-								Name:  "NODE_ROOT",
+								Name:  "HOST_ROOT",
 								Value: "/mnt/node-root",
-							},
-							{
-								Name:  "SHIM_LOCATION",
-								Value: shim.Spec.FetchStrategy.AnonHTTP.Location,
-							},
-							{
-								Name:  "RUNTIMECLASS_NAME",
-								Value: shim.Spec.RuntimeClass.Name,
-							},
-							{
-								Name:  "RUNTIMECLASS_HANDLER",
-								Value: shim.Spec.RuntimeClass.Handler,
 							},
 							{
 								Name:  "SHIM_FETCH_STRATEGY",
@@ -378,6 +403,10 @@ func (sr *ShimReconciler) createJobManifest(shim *kwasmv1.Shim, node *corev1.Nod
 							{
 								Name:      "root-mount",
 								MountPath: "/mnt/node-root",
+							},
+							{
+								Name:      "shim-download",
+								MountPath: "/assets",
 							},
 						},
 					}},
