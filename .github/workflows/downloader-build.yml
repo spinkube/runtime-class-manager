@@ -1,4 +1,4 @@
-name: Build installer image, sign it, and generate SBOMs
+name: Build shim-downloader image, sign it, and generate SBOMs
 
 on:
   workflow_call:
@@ -41,5 +41,5 @@ jobs:
       packages: write
       id-token: write
     with:
-      image-name: node-installer
+      image-name: shim-downloader
       image-digest: ${{ needs.build.outputs.digest }}
