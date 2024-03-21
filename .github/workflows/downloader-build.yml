@@ -21,6 +21,7 @@ jobs:
     with:
       image-name: shim-downloader
       dockerfile: ./images/downloader/Dockerfile
+      docker-context: ./images/downloader
       push-image: true
 
   sign:
