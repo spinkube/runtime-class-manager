@@ -38,10 +38,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
+	//TODO(flavio) we should not rename this import to kwasmv1
 	kwasmv1 "github.com/spinkube/runtime-class-manager/api/v1alpha1"
 )
 
 const (
+	//TODO(flavio): probably should be renamed
 	KwasmOperatorFinalizer = "kwasm.sh/finalizer"
 	INSTALL                = "install"
 	UNINSTALL              = "uninstall"
@@ -136,6 +138,11 @@ func (sr *ShimReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 
 	// 4. Deploy job to each node in list
 	if len(nodes.Items) > 0 {
+		// TODO(flavio): the handleInstallShim returns an error as soon as the
+		// creationg of one of the CronJob fails. We create on CronJob per node,
+		// hence failing on node 5/10 will cause this reconciliation loop to
+		// exit immediately. However, the shim finalizer has not been set yet,
+		// that happens at end of this `if` block.
 		_, err = sr.handleInstallShim(ctx, &shimResource, nodes)
 		if err != nil {
 			return ctrl.Result{}, err
@@ -208,6 +215,7 @@ func (sr *ShimReconciler) updateStatus(ctx context.Context, shim *kwasmv1.Shim, 
 func (sr *ShimReconciler) handleInstallShim(ctx context.Context, shim *kwasmv1.Shim, nodes *corev1.NodeList) (ctrl.Result, error) {
 	log := log.Ctx(ctx)
 
+	// TODO(flavio): it would be nice to have constants describing the rollout strategy types
 	switch shim.Spec.RolloutStrategy.Type {
 	case "rolling":
 		{
@@ -219,14 +227,20 @@ func (sr *ShimReconciler) handleInstallShim(ctx context.Context, shim *kwasmv1.S
 			for i := range nodes.Items {
 				node := nodes.Items[i]
 
+				// TODO(flavio): it would be nice to have constants describing the shim status
 				shimProvisioned := node.Labels[shim.Name] == "provisioned"
 				shimPending := node.Labels[shim.Name] == "pending"
+
+				// TODO(flavio): use a switch - see below
 				if !shimProvisioned && !shimPending {
 					err := sr.deployJobOnNode(ctx, shim, node, INSTALL)
 					if err != nil {
 						return ctrl.Result{}, err
 					}
 				} else {
+					// TODO(flavio): we're here when the shim is either provisioned or is pending,
+					// but the info message is about the shim being already provisioned on the nodes,
+					// which is not true -> we should use a switch
 					log.Info().Msgf("Shim %s already provisioned on Node %s", shim.Name, node.Name)
 				}
 			}
@@ -236,6 +250,8 @@ func (sr *ShimReconciler) handleInstallShim(ctx context.Context, shim *kwasmv1.S
 			log.Debug().Msgf("No rollout strategy selected; using default: rolling")
 		}
 	}
+
+	// TODO(flavio): it looks like the rolling strategy is not implemented, am I right?
 
 	return ctrl.Result{}, nil
 }
@@ -255,6 +271,7 @@ func (sr *ShimReconciler) deployJobOnNode(ctx context.Context, shim *kwasmv1.Shi
 
 	switch jobType {
 	case INSTALL:
+		// TODO(flavio): use const to track shim status
 		err := sr.updateNodeLabels(ctx, &node, shim, "pending")
 		if err != nil {
 			log.Error().Msgf("Unable to update node label %s: %s", shim.Name, err)
@@ -288,6 +305,7 @@ func (sr *ShimReconciler) deployJobOnNode(ctx context.Context, shim *kwasmv1.Shi
 	// We rely on controller-runtime to rate limit us.
 	if err := sr.Client.Patch(ctx, job, patchMethod, patchOptions); err != nil {
 		log.Error().Msgf("Unable to reconcile Job %s", err)
+		// TODO(flavio): maybe we should use a constant here
 		if err := sr.updateNodeLabels(ctx, &node, shim, "failed"); err != nil {
 			log.Error().Msgf("Unable to update node label %s: %s", shim.Name, err)
 		}
@@ -314,10 +332,6 @@ func (sr *ShimReconciler) createJobManifest(shim *kwasmv1.Shim, node *corev1.Nod
 	nameMax := int(math.Min(float64(len(name)), 63))
 
 	job := &batchv1.Job{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "Job",
-			APIVersion: "batch/v1",
-		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name[:nameMax],
 			Namespace: os.Getenv("CONTROLLER_NAMESPACE"),
@@ -347,6 +361,11 @@ func (sr *ShimReconciler) createJobManifest(shim *kwasmv1.Shim, node *corev1.Nod
 						},
 					}},
 					Containers: []corev1.Container{{
+						// TODO(flavio): use official container image - we probably have to make
+						// that somehow configurable - think about airgap environments
+						// TODO(flavio): Why is the operation part of the image name? IMHO the image should be
+						// be versioned, the action to perform could be chosen by using a
+						// different entrypoint
 						Image: "voigt/kwasm-node-installer:" + operation,
 						Name:  "provisioner",
 						SecurityContext: &corev1.SecurityContext{
@@ -358,6 +377,8 @@ func (sr *ShimReconciler) createJobManifest(shim *kwasmv1.Shim, node *corev1.Nod
 								Value: "/mnt/node-root",
 							},
 							{
+								// TODO(flavio): create issue to track definition of other fetch strategies
+								// and their implementation
 								Name:  "SHIM_LOCATION",
 								Value: shim.Spec.FetchStrategy.AnonHTTP.Location,
 							},
@@ -370,6 +391,8 @@ func (sr *ShimReconciler) createJobManifest(shim *kwasmv1.Shim, node *corev1.Nod
 								Value: shim.Spec.RuntimeClass.Handler,
 							},
 							{
+								// TODO(flavio): this seems like an odd value for the fetch
+								// strategy
 								Name:  "SHIM_FETCH_STRATEGY",
 								Value: "/mnt/node-root",
 							},
@@ -387,6 +410,9 @@ func (sr *ShimReconciler) createJobManifest(shim *kwasmv1.Shim, node *corev1.Nod
 		},
 	}
 
+	// TODO(flavio): why are we setting the owner reference only for INSTALL jobs?
+	// Shouldn't we own also the uninstall ones, these should not be owneed by the shim,
+	// but could be owned by some other resource that is part of the controller
 	if operation == INSTALL {
 		if err := ctrl.SetControllerReference(shim, job, sr.Scheme); err != nil {
 			return nil, fmt.Errorf("failed to set controller reference: %w", err)
@@ -413,7 +439,6 @@ func (sr *ShimReconciler) handleDeployRuntimeClass(ctx context.Context, shim *kw
 		FieldManager: "shim-operator",
 	}
 
-	// Note that we reconcile even if the deployment is in a good state. We rely on controller-runtime to rate limit us.
 	if err := sr.Client.Patch(ctx, runtimeClass, patchMethod, patchOptions); err != nil {
 		log.Error().Msgf("Unable to reconcile RuntimeClass %s", err)
 		return ctrl.Result{}, fmt.Errorf("failed to reconcile RuntimeClass: %w", err)
@@ -433,14 +458,9 @@ func (sr *ShimReconciler) createRuntimeClassManifest(shim *kwasmv1.Shim) (*nodev
 	}
 
 	runtimeClass := &nodev1.RuntimeClass{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "RuntimeClass",
-			APIVersion: "node.k8s.io/v1",
-		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      name[:nameMax],
-			Namespace: os.Getenv("CONTROLLER_NAMESPACE"),
-			Labels:    map[string]string{name[:nameMax]: "true"},
+			Name:   name[:nameMax],
+			Labels: map[string]string{name[:nameMax]: "true"},
 		},
 		Handler: shim.Spec.RuntimeClass.Handler,
 		Scheduling: &nodev1.Scheduling{
@@ -458,8 +478,7 @@ func (sr *ShimReconciler) createRuntimeClassManifest(shim *kwasmv1.Shim) (*nodev
 // handleDeleteShim deletes all possible child resources of a Shim. It will ignore NotFound errors.
 func (sr *ShimReconciler) handleDeleteShim(ctx context.Context, shim *kwasmv1.Shim, nodes *corev1.NodeList) error {
 	// deploy uninstall job on every node in node list
-	for i := range nodes.Items {
-		node := nodes.Items[i]
+	for _, node := range nodes.Items {
 
 		if _, exists := node.Labels[shim.Name]; exists {
 			err := sr.deployJobOnNode(ctx, shim, node, UNINSTALL)
@@ -474,14 +493,15 @@ func (sr *ShimReconciler) handleDeleteShim(ctx context.Context, shim *kwasmv1.Sh
 }
 
 func (sr *ShimReconciler) getNodeListFromShimsNodeSelctor(ctx context.Context, shim *kwasmv1.Shim) (*corev1.NodeList, error) {
+	//TODO (flavio): probably eager optimization - do some pagination?
 	nodes := &corev1.NodeList{}
 	if shim.Spec.NodeSelector != nil {
-		err := sr.List(ctx, nodes, client.InNamespace(shim.Namespace), client.MatchingLabels(shim.Spec.NodeSelector))
+		err := sr.List(ctx, nodes, client.MatchingLabels(shim.Spec.NodeSelector))
 		if err != nil {
 			return &corev1.NodeList{}, fmt.Errorf("failed to get node list: %w", err)
 		}
 	} else {
-		err := sr.List(ctx, nodes, client.InNamespace(shim.Namespace))
+		err := sr.List(ctx, nodes)
 		if err != nil {
 			return &corev1.NodeList{}, fmt.Errorf("failed to get node list: %w", err)
 		}
