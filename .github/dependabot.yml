@@ -4,15 +4,23 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    labels:
+      - "area/dependencies"
   - package-ecosystem: docker
     directory: "/images/installer"
     schedule:
       interval: "weekly"
+    labels:
+      - "area/dependencies"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    labels:
+      - "area/dependencies"
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
       interval: "daily"
+    labels:
+      - "area/dependencies"
