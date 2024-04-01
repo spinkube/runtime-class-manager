@@ -4,6 +4,9 @@
 # of the `charts` directory.
 name: Release helm chart
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:
