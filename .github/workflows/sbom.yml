@@ -1,5 +1,7 @@
 name: Generate SBOMs
 
+permissions: {}
+
 on:
   workflow_call:
     inputs:

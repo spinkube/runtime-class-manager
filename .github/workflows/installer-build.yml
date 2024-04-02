@@ -1,5 +1,8 @@
 name: Build installer image, sign it, and generate SBOMs
 
+permissions:
+  contents: read
+
 on:
   workflow_call:
     outputs:
