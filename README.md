@@ -10,7 +10,18 @@ The name should be treated as a working title and is hopefully subject to change
 
 ## Roadmap
 
-- tbd
+For the 1.0 release of runtime-class-manager, we consider three milestones:
+
+- **M1: [RCM MVP for Spinkube](https://github.com/spinkube/runtime-class-manager/milestone/1)**  
+This milestone is about getting RCM to a state where Spinkube can rely on RCM and use it as a dependency instead of Kwasm. This means, that the  focus is on managing lifecycle of [containerd-shim-spin](https://github.com/spinkube/containerd-shim-spin) on nodes.
+- **M2: [Kwasm Feature Parity](https://github.com/spinkube/runtime-class-manager/milestone/2)**  
+All shims that kwasm can install, should be installable via rcm. Automated tests are in place to ensure installation of RCM and shims that are supported by Kwasm.
+- **M3: [Full implementation of the initial spec](https://github.com/spinkube/runtime-class-manager/milestone/3)**  
+Stable spec of the Shim CRD based on the [initial proposal](https://hackmd.io/TwC8Fc8wTCKdoWlgNOqTgA). After 1.0 we assume no breaking changes of the Shim CRD. Arbitrary shims can be installed via RCM and prominent shims are tested automatically, on various Kubernetes distributions.
+- Future (ideas):
+    - support for additional container runtimes, like CRI-O to enable RCM on OpenShift
+    - alternative shim installation via Daemonset instead of Jobs
+    - treating node-installer as a daemon process, to enable better conflict resolution
 
 ## Usage
 
