@@ -18,6 +18,7 @@ package controller
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math"
 	"os"
@@ -97,6 +98,14 @@ func (sr *ShimReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
+	// Ensure the finalizer is called even if a return happens before
+	defer func() {
+		err := sr.ensureFinalizerForShim(ctx, &shimResource, RCMOperatorFinalizer)
+		if err != nil {
+			log.Error().Msgf("Failed to ensure finalizer: %s", err)
+		}
+	}()
+
 	// 2. Get list of nodes where this shim is supposed to be deployed on
 	nodes, err := sr.getNodeListFromShimsNodeSelctor(ctx, &shimResource)
 	if err != nil {
@@ -137,15 +146,11 @@ func (sr *ShimReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	// 4. Deploy job to each node in list
 	if len(nodes.Items) > 0 {
 		_, err = sr.handleInstallShim(ctx, &shimResource, nodes)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
 	} else {
 		log.Info().Msg("No nodes found")
 	}
 
-	err = sr.ensureFinalizerForShim(ctx, &shimResource, RCMOperatorFinalizer)
-	return ctrl.Result{}, client.IgnoreNotFound(err)
+	return ctrl.Result{}, err
 }
 
 // findShimsToReconcile finds all Shims that need to be reconciled.
@@ -207,6 +212,7 @@ func (sr *ShimReconciler) updateStatus(ctx context.Context, shim *rcmv1.Shim, no
 // handleInstallShim deploys a Job to each node in a list.
 func (sr *ShimReconciler) handleInstallShim(ctx context.Context, shim *rcmv1.Shim, nodes *corev1.NodeList) (ctrl.Result, error) {
 	log := log.Ctx(ctx)
+	var err error = nil
 
 	switch shim.Spec.RolloutStrategy.Type {
 	case "rolling":
@@ -216,6 +222,7 @@ func (sr *ShimReconciler) handleInstallShim(ctx context.Context, shim *rcmv1.Shi
 	case "recreate":
 		{
 			log.Debug().Msgf("Recreate strategy selected")
+			shimInstallationErrors := []error{}
 			for i := range nodes.Items {
 				node := nodes.Items[i]
 
@@ -223,13 +230,12 @@ func (sr *ShimReconciler) handleInstallShim(ctx context.Context, shim *rcmv1.Shi
 				shimPending := node.Labels[shim.Name] == "pending"
 				if !shimProvisioned && !shimPending {
 					err := sr.deployJobOnNode(ctx, shim, node, INSTALL)
-					if err != nil {
-						return ctrl.Result{}, err
-					}
+					shimInstallationErrors = append(shimInstallationErrors, err)
 				} else {
 					log.Info().Msgf("Shim %s already provisioned on Node %s", shim.Name, node.Name)
 				}
 			}
+			err = errors.Join(shimInstallationErrors...)
 		}
 	default:
 		{
@@ -237,7 +243,7 @@ func (sr *ShimReconciler) handleInstallShim(ctx context.Context, shim *rcmv1.Shi
 		}
 	}
 
-	return ctrl.Result{}, nil
+	return ctrl.Result{}, err
 }
 
 // deployUninstallJob deploys an uninstall Job for a Shim.
