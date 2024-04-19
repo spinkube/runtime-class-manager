@@ -214,38 +214,44 @@ func (sr *ShimReconciler) updateStatus(ctx context.Context, shim *rcmv1.Shim, no
 // handleInstallShim deploys a Job to each node in a list.
 func (sr *ShimReconciler) handleInstallShim(ctx context.Context, shim *rcmv1.Shim, nodes *corev1.NodeList) (ctrl.Result, error) {
 	log := log.Ctx(ctx)
-	var err error = nil
 
 	switch shim.Spec.RolloutStrategy.Type {
 	case rcmv1.RolloutStrategyTypeRolling:
 		{
 			log.Debug().Msgf("Rolling strategy selected: maxUpdate=%d", shim.Spec.RolloutStrategy.Rolling.MaxUpdate)
+			return ctrl.Result{}, errors.New("Rolling strategy not implemented yet")
 		}
 	case rcmv1.RolloutStrategyTypeRecreate:
 		{
 			log.Debug().Msgf("Recreate strategy selected")
-			shimInstallationErrors := []error{}
-			for i := range nodes.Items {
-				node := nodes.Items[i]
-
-				shimProvisioned := node.Labels[shim.Name] == ProvisioningStatusProvisioned
-				shimPending := node.Labels[shim.Name] == ProvisioningStatusPending
-				if !shimProvisioned && !shimPending {
-					err := sr.deployJobOnNode(ctx, shim, node, INSTALL)
-					shimInstallationErrors = append(shimInstallationErrors, err)
-				} else {
-					log.Info().Msgf("Shim %s already provisioned on Node %s", shim.Name, node.Name)
-				}
-			}
-			err = errors.Join(shimInstallationErrors...)
+			return sr.recreateStrategyRollout(ctx, shim, nodes)
 		}
 	default:
 		{
-			log.Debug().Msgf("No rollout strategy selected; using default: rolling")
+			log.Debug().Msgf("No rollout strategy selected; using default: recreate")
+			return sr.recreateStrategyRollout(ctx, shim, nodes)
 		}
 	}
+}
 
-	return ctrl.Result{}, err
+func (sr *ShimReconciler) recreateStrategyRollout(ctx context.Context, shim *rcmv1.Shim, nodes *corev1.NodeList) (ctrl.Result, error) {
+	log := log.Ctx(ctx)
+	shimInstallationErrors := []error{}
+	for i := range nodes.Items {
+		node := nodes.Items[i]
+
+		shimProvisioned := node.Labels[shim.Name] == ProvisioningStatusProvisioned
+		shimPending := node.Labels[shim.Name] == ProvisioningStatusPending
+		if !shimProvisioned && !shimPending {
+			err := sr.deployJobOnNode(ctx, shim, node, INSTALL)
+			shimInstallationErrors = append(shimInstallationErrors, err)
+		}
+
+		if shimProvisioned {
+			log.Info().Msgf("Shim %s already provisioned on Node %s", shim.Name, node.Name)
+		}
+	}
+	return ctrl.Result{}, errors.Join(shimInstallationErrors...)
 }
 
 // deployUninstallJob deploys an uninstall Job for a Shim.
