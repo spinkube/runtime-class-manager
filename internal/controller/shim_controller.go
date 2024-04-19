@@ -320,10 +320,6 @@ func (sr *ShimReconciler) createJobManifest(shim *rcmv1.Shim, node *corev1.Node,
 	nameMax := int(math.Min(float64(len(name)), 63))
 
 	job := &batchv1.Job{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "Job",
-			APIVersion: "batch/v1",
-		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name[:nameMax],
 			Namespace: os.Getenv("CONTROLLER_NAMESPACE"),
@@ -439,14 +435,9 @@ func (sr *ShimReconciler) createRuntimeClassManifest(shim *rcmv1.Shim) (*nodev1.
 	}
 
 	runtimeClass := &nodev1.RuntimeClass{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "RuntimeClass",
-			APIVersion: "node.k8s.io/v1",
-		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      name[:nameMax],
-			Namespace: os.Getenv("CONTROLLER_NAMESPACE"),
-			Labels:    map[string]string{name[:nameMax]: "true"},
+			Name:   name[:nameMax],
+			Labels: map[string]string{name[:nameMax]: "true"},
 		},
 		Handler: shim.Spec.RuntimeClass.Handler,
 		Scheduling: &nodev1.Scheduling{
@@ -482,12 +473,12 @@ func (sr *ShimReconciler) handleDeleteShim(ctx context.Context, shim *rcmv1.Shim
 func (sr *ShimReconciler) getNodeListFromShimsNodeSelctor(ctx context.Context, shim *rcmv1.Shim) (*corev1.NodeList, error) {
 	nodes := &corev1.NodeList{}
 	if shim.Spec.NodeSelector != nil {
-		err := sr.List(ctx, nodes, client.InNamespace(shim.Namespace), client.MatchingLabels(shim.Spec.NodeSelector))
+		err := sr.List(ctx, nodes, client.MatchingLabels(shim.Spec.NodeSelector))
 		if err != nil {
 			return &corev1.NodeList{}, fmt.Errorf("failed to get node list: %w", err)
 		}
 	} else {
-		err := sr.List(ctx, nodes, client.InNamespace(shim.Namespace))
+		err := sr.List(ctx, nodes)
 		if err != nil {
 			return &corev1.NodeList{}, fmt.Errorf("failed to get node list: %w", err)
 		}
