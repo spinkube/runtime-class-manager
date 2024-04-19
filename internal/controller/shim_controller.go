@@ -43,9 +43,11 @@ import (
 )
 
 const (
-	RCMOperatorFinalizer = "rcm.spinkube.dev/finalizer"
-	INSTALL              = "install"
-	UNINSTALL            = "uninstall"
+	RCMOperatorFinalizer          = "rcm.spinkube.dev/finalizer"
+	INSTALL                       = "install"
+	UNINSTALL                     = "uninstall"
+	ProvisioningStatusProvisioned = "provisioned"
+	ProvisioningStatusPending     = "pending"
 )
 
 // ShimReconciler reconciles a Shim object
@@ -188,7 +190,7 @@ func (sr *ShimReconciler) updateStatus(ctx context.Context, shim *rcmv1.Shim, no
 
 	if len(nodes.Items) > 0 {
 		for _, node := range nodes.Items {
-			if node.Labels[shim.Name] == "provisioned" {
+			if node.Labels[shim.Name] == ProvisioningStatusProvisioned {
 				shim.Status.NodeReadyCount++
 			}
 		}
@@ -215,19 +217,19 @@ func (sr *ShimReconciler) handleInstallShim(ctx context.Context, shim *rcmv1.Shi
 	var err error = nil
 
 	switch shim.Spec.RolloutStrategy.Type {
-	case "rolling":
+	case rcmv1.RolloutStrategyTypeRolling:
 		{
 			log.Debug().Msgf("Rolling strategy selected: maxUpdate=%d", shim.Spec.RolloutStrategy.Rolling.MaxUpdate)
 		}
-	case "recreate":
+	case rcmv1.RolloutStrategyTypeRecreate:
 		{
 			log.Debug().Msgf("Recreate strategy selected")
 			shimInstallationErrors := []error{}
 			for i := range nodes.Items {
 				node := nodes.Items[i]
 
-				shimProvisioned := node.Labels[shim.Name] == "provisioned"
-				shimPending := node.Labels[shim.Name] == "pending"
+				shimProvisioned := node.Labels[shim.Name] == ProvisioningStatusProvisioned
+				shimPending := node.Labels[shim.Name] == ProvisioningStatusPending
 				if !shimProvisioned && !shimPending {
 					err := sr.deployJobOnNode(ctx, shim, node, INSTALL)
 					shimInstallationErrors = append(shimInstallationErrors, err)
@@ -261,7 +263,7 @@ func (sr *ShimReconciler) deployJobOnNode(ctx context.Context, shim *rcmv1.Shim,
 
 	switch jobType {
 	case INSTALL:
-		err := sr.updateNodeLabels(ctx, &node, shim, "pending")
+		err := sr.updateNodeLabels(ctx, &node, shim, ProvisioningStatusPending)
 		if err != nil {
 			log.Error().Msgf("Unable to update node label %s: %s", shim.Name, err)
 		}
