@@ -73,6 +73,9 @@ spec:
                     - maxUpdate
                     type: object
                   type:
+                    enum:
+                    - rolling
+                    - recreate
                     type: string
                 required:
                 - type

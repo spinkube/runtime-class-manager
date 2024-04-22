@@ -42,9 +42,17 @@ type RuntimeClassSpec struct {
 	Handler string `json:"handler"`
 }
 
+// +kubebuilder:validation:Enum=rolling;recreate
+type RolloutStrategyType string
+
+const (
+	RolloutStrategyTypeRolling  RolloutStrategyType = "rolling"
+	RolloutStrategyTypeRecreate RolloutStrategyType = "recreate"
+)
+
 type RolloutStrategy struct {
-	Type    string      `json:"type"`
-	Rolling RollingSpec `json:"rolling,omitempty"`
+	Type    RolloutStrategyType `json:"type"`
+	Rolling RollingSpec         `json:"rolling,omitempty"`
 }
 
 type RollingSpec struct {
