@@ -64,7 +64,7 @@ func RunUninstall(config Config, rootFs, hostFs afero.Fs, restarter containerd.R
 
 	configChanged, err := containerdConfig.RemoveRuntime(binPath)
 	if err != nil {
-		return fmt.Errorf("failed to write conteainerd config for shim '%s': %w", runtimeName, err)
+		return fmt.Errorf("failed to write containerd config for shim '%s': %w", runtimeName, err)
 	}
 
 	if !configChanged {
