@@ -472,6 +472,10 @@ func (sr *ShimReconciler) createRuntimeClassManifest(shim *rcmv1.Shim) (*nodev1.
 	}
 
 	runtimeClass := &nodev1.RuntimeClass{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "node.k8s.io/v1",
+			Kind:       "RuntimeClass",
+		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   name[:nameMax],
 			Labels: map[string]string{name[:nameMax]: "true"},
