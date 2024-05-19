@@ -23,7 +23,9 @@ log "start downloading shim from  ${SHIM_LOCATION}..." "INFO"
 
 mkdir -p /assets
 
-curl -sL "${SHIM_LOCATION}"  | tar -xzf - -C /assets
+# overwrite default name of shim binary; use the name of shim resource instead
+# to enable installing multiple versions of the same shim
+curl -sL "${SHIM_LOCATION}"  | tar --transform "s/containerd-shim-.*/containerd-shim-${SHIM_NAME}/" -xzf - -C /assets
 log "download successful:" "INFO"
 
 ls -lah /assets
