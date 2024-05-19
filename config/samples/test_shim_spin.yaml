@@ -1,10 +1,10 @@
 apiVersion: runtime.kwasm.sh/v1alpha1 
 kind: Shim
 metadata:
-  name: wasmtime-spin-v2
+  name: spin-v2
   labels:
-    app.kubernetes.io/name: wasmtime-spin-v2
-    app.kubernetes.io/instance: wasmtime-spin-v2
+    app.kubernetes.io/name: spin-v2
+    app.kubernetes.io/instance: spin-v2
     app.kubernetes.io/part-of: kwasm-operator
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/created-by: kwasm-operator
@@ -15,10 +15,10 @@ spec:
   fetchStrategy:
     type: annonymousHttp
     anonHttp:
-      location: "https://github.com/deislabs/containerd-wasm-shims/releases/download/v0.10.0/containerd-wasm-shims-v2-spin-linux-aarch64.tar.gz"
+      location: "https://github.com/spinkube/containerd-shim-spin/releases/download/v0.14.1/containerd-shim-spin-v2-linux-aarch64.tar.gz"
 
   runtimeClass:
-    name: wasmtime-spin-v2
+    name: spin-v2
     handler: spin
 
   rolloutStrategy:
