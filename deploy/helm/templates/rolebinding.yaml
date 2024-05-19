@@ -1,0 +1,14 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  creationTimestamp: null
+  name: {{ include "rcm.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "rcm.fullname" . }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "rcm.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
