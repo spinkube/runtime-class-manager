@@ -56,6 +56,14 @@ type ShimReconciler struct {
 	Scheme *runtime.Scheme
 }
 
+// configuration for INSTALL or UNINSTALL jobs
+type opConfig struct {
+	operation     string
+	privileged    bool
+	initContainer []corev1.Container
+	args          []string
+}
+
 //+kubebuilder:rbac:groups=runtime.kwasm.sh,resources=shims,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=runtime.kwasm.sh,resources=shims/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=runtime.kwasm.sh,resources=shims/finalizers,verbs=update
@@ -301,7 +309,7 @@ func (sr *ShimReconciler) deployJobOnNode(ctx context.Context, shim *rcmv1.Shim,
 
 	// We rely on controller-runtime to rate limit us.
 	if err := sr.Client.Patch(ctx, job, patchMethod, patchOptions); err != nil {
-		log.Error().Msgf("Unable to reconcile Job %s", err)
+		log.Error().Msgf("Unable to reconcile Job: %s", err)
 		if err := sr.updateNodeLabels(ctx, &node, shim, "failed"); err != nil {
 			log.Error().Msgf("Unable to update node label %s: %s", shim.Name, err)
 		}
@@ -321,23 +329,20 @@ func (sr *ShimReconciler) updateNodeLabels(ctx context.Context, node *corev1.Nod
 	return nil
 }
 
-// createJobManifest creates a Job manifest for a Shim.
-func (sr *ShimReconciler) createJobManifest(shim *rcmv1.Shim, node *corev1.Node, operation string) (*batchv1.Job, error) {
-	priv := true
-	name := node.Name + "-" + shim.Name + "-" + operation
-	nameMax := int(math.Min(float64(len(name)), 63))
-
-	initContainer := []corev1.Container{{}}
-	args := []string{"uninstall"}
-
-	if operation == INSTALL {
-		initContainer = []corev1.Container{{
-			Image: "ghcr.io/spinkube/shim-downloader:latest",
+// setOperationConfiguration sets operation specific configuration for the job manifest
+func (sr *ShimReconciler) setOperationConfiguration(shim *rcmv1.Shim, opConfig *opConfig) {
+	if opConfig.operation == INSTALL {
+		opConfig.initContainer = []corev1.Container{{
+			Image: os.Getenv("SHIM_DOWNLOADER_IMAGE"),
 			Name:  "downloader",
 			SecurityContext: &corev1.SecurityContext{
-				Privileged: &priv,
+				Privileged: &opConfig.privileged,
 			},
 			Env: []corev1.EnvVar{
+				{
+					Name:  "SHIM_NAME",
+					Value: shim.Name,
+				},
 				{
 					Name:  "SHIM_LOCATION",
 					Value: shim.Spec.FetchStrategy.AnonHTTP.Location,
@@ -350,14 +355,43 @@ func (sr *ShimReconciler) createJobManifest(shim *rcmv1.Shim, node *corev1.Node,
 				},
 			},
 		}}
-		args = []string{
+		opConfig.args = []string{
 			"install",
 			"-H",
 			"/mnt/node-root",
+			"-r",
+			shim.Name,
 		}
 	}
 
+	if opConfig.operation == UNINSTALL {
+		opConfig.initContainer = nil
+		opConfig.args = []string{
+			"uninstall",
+			"-H",
+			"/mnt/node-root",
+			"-r",
+			shim.Name,
+		}
+	}
+}
+
+// createJobManifest creates a Job manifest for a Shim.
+func (sr *ShimReconciler) createJobManifest(shim *rcmv1.Shim, node *corev1.Node, operation string) (*batchv1.Job, error) {
+	opConfig := opConfig{
+		operation:  operation,
+		privileged: true,
+	}
+	sr.setOperationConfiguration(shim, &opConfig)
+
+	name := node.Name + "-" + shim.Name + "-" + operation
+	nameMax := int(math.Min(float64(len(name)), 63))
+
 	job := &batchv1.Job{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "batch/v1",
+			Kind:       "Job",
+		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name[:nameMax],
 			Namespace: os.Getenv("CONTROLLER_NAMESPACE"),
@@ -391,13 +425,13 @@ func (sr *ShimReconciler) createJobManifest(shim *rcmv1.Shim, node *corev1.Node,
 							},
 						},
 					},
-					InitContainers: initContainer,
+					InitContainers: opConfig.initContainer,
 					Containers: []corev1.Container{{
-						Image: "ghcr.io/spinkube/node-installer:latest",
-						Args:  args,
+						Image: os.Getenv("SHIM_NODE_INSTALLER_IMAGE"),
+						Args:  opConfig.args,
 						Name:  "provisioner",
 						SecurityContext: &corev1.SecurityContext{
-							Privileged: &priv,
+							Privileged: &opConfig.privileged,
 						},
 						Env: []corev1.EnvVar{
 							{
