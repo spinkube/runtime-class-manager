@@ -38,16 +38,16 @@ func TestConfig_Uninstall(t *testing.T) {
 		want    string
 		wantErr bool
 	}{
-		// {
-		// 	"shim not installed",
-		// 	fields{
-		// 		tests.FixtureFs("../../testdata/node-installer/shim"),
-		// 		"/opt/kwasm",
-		// 	},
-		// 	args{"not-existing-shim"},
-		// 	"",
-		// 	false,
-		// },
+		{
+			"shim not installed",
+			fields{
+				tests.FixtureFs("../../testdata/node-installer/shim"),
+				"/opt/kwasm",
+			},
+			args{"not-existing-shim"},
+			"",
+			true,
+		},
 		{
 			"missing shim binary",
 			fields{
