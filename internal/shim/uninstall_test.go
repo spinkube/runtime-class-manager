@@ -48,16 +48,16 @@ func TestConfig_Uninstall(t *testing.T) {
 		// 	"",
 		// 	false,
 		// },
-		// {
-		// 	"missing shim binary",
-		// 	fields{
-		// 		tests.FixtureFs("../../testdata/node-installer/shim-missing-binary"),
-		// 		"/opt/kwasm",
-		// 	},
-		// 	args{"spin-v1"},
-		// 	"/opt/kwasm/bin/containerd-shim-spin-v1",
-		// 	false,
-		// },
+		{
+			"missing shim binary",
+			fields{
+				tests.FixtureFs("../../testdata/node-installer/shim-missing-binary"),
+				"/opt/kwasm",
+			},
+			args{"spin-v1"},
+			"/opt/kwasm/bin/containerd-shim-spin-v1",
+			false,
+		},
 		{
 			"successful shim uninstallation",
 			fields{
