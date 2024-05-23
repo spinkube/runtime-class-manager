@@ -39,8 +39,10 @@ var uninstallCmd = &cobra.Command{
 		restarter := containerd.NewRestarter()
 
 		if err := RunUninstall(config, rootFs, hostFs, restarter); err != nil {
-			slog.Error("failed to uninstall", "error", err)
-			os.Exit(1)
+			slog.Error("failed to uninstall shim", "error", err)
+
+			// Exiting with 0 to prevent Kubernetes Jobs from running repetitively
+			os.Exit(0)
 		}
 	},
 }
@@ -50,7 +52,7 @@ func init() {
 }
 
 func RunUninstall(config Config, rootFs, hostFs afero.Fs, restarter containerd.Restarter) error {
-	slog.Info("uninstall called")
+	slog.Info("uninstall called", "shim", config.Runtime.Name)
 	shimName := config.Runtime.Name
 	runtimeName := path.Join(config.Kwasm.Path, "bin", shimName)
 
@@ -64,7 +66,7 @@ func RunUninstall(config Config, rootFs, hostFs afero.Fs, restarter containerd.R
 
 	configChanged, err := containerdConfig.RemoveRuntime(binPath)
 	if err != nil {
-		return fmt.Errorf("failed to write conteainerd config for shim '%s': %w", runtimeName, err)
+		return fmt.Errorf("failed to write containerd config for shim '%s': %w", runtimeName, err)
 	}
 
 	if !configChanged {

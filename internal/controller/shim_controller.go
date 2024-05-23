@@ -56,6 +56,14 @@ type ShimReconciler struct {
 	Scheme *runtime.Scheme
 }
 
+// configuration for INSTALL or UNINSTALL jobs
+type opConfig struct {
+	operation     string
+	privileged    bool
+	initContainer []corev1.Container
+	args          []string
+}
+
 //+kubebuilder:rbac:groups=runtime.kwasm.sh,resources=shims,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=runtime.kwasm.sh,resources=shims/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=runtime.kwasm.sh,resources=shims/finalizers,verbs=update
@@ -301,7 +309,7 @@ func (sr *ShimReconciler) deployJobOnNode(ctx context.Context, shim *rcmv1.Shim,
 
 	// We rely on controller-runtime to rate limit us.
 	if err := sr.Client.Patch(ctx, job, patchMethod, patchOptions); err != nil {
-		log.Error().Msgf("Unable to reconcile Job %s", err)
+		log.Error().Msgf("Unable to reconcile Job: %s", err)
 		if err := sr.updateNodeLabels(ctx, &node, shim, "failed"); err != nil {
 			log.Error().Msgf("Unable to update node label %s: %s", shim.Name, err)
 		}
@@ -321,13 +329,69 @@ func (sr *ShimReconciler) updateNodeLabels(ctx context.Context, node *corev1.Nod
 	return nil
 }
 
+// setOperationConfiguration sets operation specific configuration for the job manifest
+func (sr *ShimReconciler) setOperationConfiguration(shim *rcmv1.Shim, opConfig *opConfig) {
+	if opConfig.operation == INSTALL {
+		opConfig.initContainer = []corev1.Container{{
+			Image: os.Getenv("SHIM_DOWNLOADER_IMAGE"),
+			Name:  "downloader",
+			SecurityContext: &corev1.SecurityContext{
+				Privileged: &opConfig.privileged,
+			},
+			Env: []corev1.EnvVar{
+				{
+					Name:  "SHIM_NAME",
+					Value: shim.Name,
+				},
+				{
+					Name:  "SHIM_LOCATION",
+					Value: shim.Spec.FetchStrategy.AnonHTTP.Location,
+				},
+			},
+			VolumeMounts: []corev1.VolumeMount{
+				{
+					Name:      "shim-download",
+					MountPath: "/assets",
+				},
+			},
+		}}
+		opConfig.args = []string{
+			"install",
+			"-H",
+			"/mnt/node-root",
+			"-r",
+			shim.Name,
+		}
+	}
+
+	if opConfig.operation == UNINSTALL {
+		opConfig.initContainer = nil
+		opConfig.args = []string{
+			"uninstall",
+			"-H",
+			"/mnt/node-root",
+			"-r",
+			shim.Name,
+		}
+	}
+}
+
 // createJobManifest creates a Job manifest for a Shim.
 func (sr *ShimReconciler) createJobManifest(shim *rcmv1.Shim, node *corev1.Node, operation string) (*batchv1.Job, error) {
-	priv := true
+	opConfig := opConfig{
+		operation:  operation,
+		privileged: true,
+	}
+	sr.setOperationConfiguration(shim, &opConfig)
+
 	name := node.Name + "-" + shim.Name + "-" + operation
 	nameMax := int(math.Min(float64(len(name)), 63))
 
 	job := &batchv1.Job{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "batch/v1",
+			Kind:       "Job",
+		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name[:nameMax],
 			Namespace: os.Getenv("CONTROLLER_NAMESPACE"),
@@ -348,36 +412,31 @@ func (sr *ShimReconciler) createJobManifest(shim *rcmv1.Shim, node *corev1.Node,
 				Spec: corev1.PodSpec{
 					NodeName: node.Name,
 					HostPID:  true,
-					Volumes: []corev1.Volume{{
-						Name: "root-mount",
-						VolumeSource: corev1.VolumeSource{
-							HostPath: &corev1.HostPathVolumeSource{
-								Path: "/",
+					Volumes: []corev1.Volume{
+						{
+							Name: "shim-download",
+						},
+						{
+							Name: "root-mount",
+							VolumeSource: corev1.VolumeSource{
+								HostPath: &corev1.HostPathVolumeSource{
+									Path: "/",
+								},
 							},
 						},
-					}},
+					},
+					InitContainers: opConfig.initContainer,
 					Containers: []corev1.Container{{
-						Image: "voigt/kwasm-node-installer:" + operation,
+						Image: os.Getenv("SHIM_NODE_INSTALLER_IMAGE"),
+						Args:  opConfig.args,
 						Name:  "provisioner",
 						SecurityContext: &corev1.SecurityContext{
-							Privileged: &priv,
+							Privileged: &opConfig.privileged,
 						},
 						Env: []corev1.EnvVar{
 							{
-								Name:  "NODE_ROOT",
+								Name:  "HOST_ROOT",
 								Value: "/mnt/node-root",
-							},
-							{
-								Name:  "SHIM_LOCATION",
-								Value: shim.Spec.FetchStrategy.AnonHTTP.Location,
-							},
-							{
-								Name:  "RUNTIMECLASS_NAME",
-								Value: shim.Spec.RuntimeClass.Name,
-							},
-							{
-								Name:  "RUNTIMECLASS_HANDLER",
-								Value: shim.Spec.RuntimeClass.Handler,
 							},
 							{
 								Name:  "SHIM_FETCH_STRATEGY",
@@ -388,6 +447,10 @@ func (sr *ShimReconciler) createJobManifest(shim *rcmv1.Shim, node *corev1.Node,
 							{
 								Name:      "root-mount",
 								MountPath: "/mnt/node-root",
+							},
+							{
+								Name:      "shim-download",
+								MountPath: "/assets",
 							},
 						},
 					}},
@@ -443,6 +506,10 @@ func (sr *ShimReconciler) createRuntimeClassManifest(shim *rcmv1.Shim) (*nodev1.
 	}
 
 	runtimeClass := &nodev1.RuntimeClass{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "node.k8s.io/v1",
+			Kind:       "RuntimeClass",
+		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   name[:nameMax],
 			Labels: map[string]string{name[:nameMax]: "true"},

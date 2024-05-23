@@ -46,7 +46,7 @@ func TestConfig_Uninstall(t *testing.T) {
 			},
 			args{"not-existing-shim"},
 			"",
-			false,
+			true,
 		},
 		{
 			"missing shim binary",

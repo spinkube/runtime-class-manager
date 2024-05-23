@@ -2,7 +2,7 @@ package shim
 
 import (
 	"errors"
-	"log/slog"
+	"fmt"
 	"os"
 
 	"github.com/spinkube/runtime-class-manager/internal/state"
@@ -15,17 +15,15 @@ func (c *Config) Uninstall(shimName string) (string, error) {
 	}
 	s, ok := st.Shims[shimName]
 	if !ok {
-		slog.Warn("shim not installed", "shim", shimName)
-		return "", nil
+		return "", fmt.Errorf("shim %s not installed", shimName)
 	}
 	filePath := s.Path
 
 	err = c.hostFs.Remove(filePath)
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
-			return "", err
+			return "", fmt.Errorf("shim binary at %s does not exist, nothing to delete", filePath)
 		}
-		slog.Warn("shim binary did not exist, nothing to delete")
 	}
 	st.RemoveShim(shimName)
 	if err = st.Write(); err != nil {

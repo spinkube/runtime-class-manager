@@ -12,6 +12,12 @@ updates:
       interval: "weekly"
     labels:
       - "area/dependencies"
+  - package-ecosystem: docker
+    directory: "/images/downloader"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "area/dependencies"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
