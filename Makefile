@@ -98,7 +98,10 @@ build: manifests generate fmt vet golangci-build ## Build manager binary.
 
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.
-	CONTROLLER_NAMESPACE="default" go run -ldflags "${LDFLAGS}" ./cmd/rcm/main.go
+	CONTROLLER_NAMESPACE="default" \
+	SHIM_DOWNLOADER_IMAGE="ghcr.io/spinkube/shim-downloader:latest" \
+	SHIM_NODE_INSTALLER_IMAGE="ghcr.io/spinkube/node-installer:latest" \
+	go run -ldflags "${LDFLAGS}" ./cmd/rcm/main.go
 
 # If you wish to build the manager image targeting other platforms you can use the --platform flag.
 # (i.e. docker build --platform linux/arm64). However, you must enable docker buildKit for it.
