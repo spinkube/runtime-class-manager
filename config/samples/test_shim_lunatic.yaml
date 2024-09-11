@@ -13,7 +13,7 @@ spec:
     lunatic: "true"
 
   fetchStrategy:
-    type: annonymousHttp
+    type: anonymousHttp
     anonHttp:
       location: "https://github.com/deislabs/containerd-wasm-shims/releases/download/v0.10.0/containerd-wasm-shims-v1-lunatic-linux-aarch64.tar.gz"
 

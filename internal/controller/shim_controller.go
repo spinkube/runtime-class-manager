@@ -117,7 +117,7 @@ func (sr *ShimReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	}()
 
 	// 2. Get list of nodes where this shim is supposed to be deployed on
-	nodes, err := sr.getNodeListFromShimsNodeSelctor(ctx, &shimResource)
+	nodes, err := sr.getNodeListFromShimsNodeSelector(ctx, &shimResource)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -545,7 +545,7 @@ func (sr *ShimReconciler) handleDeleteShim(ctx context.Context, shim *rcmv1.Shim
 	return nil
 }
 
-func (sr *ShimReconciler) getNodeListFromShimsNodeSelctor(ctx context.Context, shim *rcmv1.Shim) (*corev1.NodeList, error) {
+func (sr *ShimReconciler) getNodeListFromShimsNodeSelector(ctx context.Context, shim *rcmv1.Shim) (*corev1.NodeList, error) {
 	nodes := &corev1.NodeList{}
 	if shim.Spec.NodeSelector != nil {
 		err := sr.List(ctx, nodes, client.MatchingLabels(shim.Spec.NodeSelector))
