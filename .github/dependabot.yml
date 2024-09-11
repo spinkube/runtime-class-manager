@@ -30,3 +30,10 @@ updates:
       interval: "daily"
     labels:
       - "area/dependencies"
+    groups:
+      k8s:
+        patterns:
+          - "k8s.io/api"
+          - "k8s.io/apimachinery"
+          - "k8s.io/client-go"
+          - "sigs.k8s.io/controller-runtime"
