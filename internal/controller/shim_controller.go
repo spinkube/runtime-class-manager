@@ -497,7 +497,7 @@ func (sr *ShimReconciler) handleDeployRuntimeClass(ctx context.Context, shim *rc
 
 // createRuntimeClassManifest creates a RuntimeClass manifest for a Shim.
 func (sr *ShimReconciler) createRuntimeClassManifest(shim *rcmv1.Shim) (*nodev1.RuntimeClass, error) {
-	name := shim.Name
+	name := shim.Spec.RuntimeClass.Name
 	nameMax := int(math.Min(float64(len(name)), 63))
 
 	nodeSelector := shim.Spec.NodeSelector
