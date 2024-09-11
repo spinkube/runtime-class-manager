@@ -8,15 +8,15 @@ image:
   repository: "ghcr.io/spinkube/runtime-class-manager"
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest-feat-add_shim_downloader"
+  tag: "latest"
 
 rcm:
   shimDownLoaderImage:
     repository: "ghcr.io/spinkube/shim-downloader"
-    tag: "latest-feat-add_shim_downloader"
+    tag: "latest"
   nodeInstallerImage:
     repository: "ghcr.io/spinkube/node-installer"
-    tag: "latest-feat-add_shim_downloader"
+    tag: "latest"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -66,13 +66,13 @@ resources: {}
 livenessProbe:
   httpGet:
     path: /healthz
-    port: 8081
+    port: 8082
   initialDelaySeconds: 15
   periodSeconds: 20
 readinessProbe:
   httpGet:
     path: /readyz
-    port: 8081
+    port: 8082
 
 autoscaling:
   enabled: false
