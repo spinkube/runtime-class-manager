@@ -14,6 +14,8 @@ rules:
   - watch
   - update
 
+# TODO: It seems like runtime-class-manger should only need to modify jobs in its own namespace,
+# i.e. via a namespaced Role. However, RBAC errors result without these clusterrole permissions.
 - apiGroups:
   - batch
   resources:
