@@ -11,7 +11,7 @@ image:
   tag: "latest"
 
 rcm:
-  shimDownLoaderImage:
+  shimDownloaderImage:
     repository: "ghcr.io/spinkube/shim-downloader"
     tag: "latest"
   nodeInstallerImage:

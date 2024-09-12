@@ -40,7 +40,7 @@ spec:
           - name: CONTROLLER_NAMESPACE
             value: {{ .Release.Namespace }}
           - name: SHIM_DOWNLOADER_IMAGE
-            value: "{{ .Values.rcm.shimDownLoaderImage.repository }}:{{ .Values.rcm.shimDownLoaderImage.tag | default .Chart.AppVersion }}"
+            value: "{{ .Values.rcm.shimDownloaderImage.repository }}:{{ .Values.rcm.shimDownloaderImage.tag | default .Chart.AppVersion }}"
           - name: SHIM_NODE_INSTALLER_IMAGE
             value: "{{ .Values.rcm.nodeInstallerImage.repository }}:{{ .Values.rcm.nodeInstallerImage.tag | default .Chart.AppVersion }}"
           ports:
