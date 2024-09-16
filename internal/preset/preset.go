@@ -2,7 +2,9 @@ package preset
 
 import (
 	"errors"
+	"io"
 	"os"
+	"strings"
 
 	"github.com/spf13/afero"
 	"github.com/spinkube/runtime-class-manager/internal/containerd"
@@ -45,7 +47,28 @@ var RKE2 = Default.WithConfigPath("/var/lib/rancher/rke2/agent/etc/containerd/co
 		}
 
 		if errors.Is(err, os.ErrNotExist) {
-			// TODO: Copy file from original file to new config file
+			// Copy base config into .tmpl version
+			src, _ := strings.CutSuffix(env.ConfigPath, ".tmpl")
+			in, err := env.HostFs.Open(src)
+			if err != nil {
+				return err
+			}
+			defer in.Close()
+			out, err := env.HostFs.Create(env.ConfigPath)
+			if err != nil {
+				return err
+			}
+			defer func() {
+				cerr := out.Close()
+				if err == nil {
+					err = cerr
+				}
+			}()
+			if _, err = io.Copy(out, in); err != nil {
+				return err
+			}
+			err = out.Sync()
+
 			return nil
 		}
 
