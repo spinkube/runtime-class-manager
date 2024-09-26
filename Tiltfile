@@ -9,16 +9,16 @@ kubectl_cmd = "kubectl"
 if str(local("command -v " + kubectl_cmd + " || true", quiet = True)) == "":
     fail("Required command '" + kubectl_cmd + "' not found in PATH")
 
-# Create the kwasm namespace
+# Create the rcm namespace
 # This is required since the helm() function doesn't support the create_namespace flag
 load('ext://namespace', 'namespace_create')
-namespace_create('kwasm')
+namespace_create('rcm')
 
-# Install kwasm-operator helm chart
+# Install runtime-class-manager helm chart
 install = helm(
-    './charts/kwasm-operator/', 
-    name='kwasm-operator', 
-    namespace='kwasm', 
+    './deploy/helm',
+    name='runtime-class-manager',
+    namespace='rcm',
     set=['image.repository=' + settings.get('registry')]
 )
 
@@ -26,7 +26,7 @@ objects = decode_yaml_stream(install)
 for o in objects:
     # Update the root security group. Tilt requires root access to update the
     # running process.
-    if o.get('kind') == 'Deployment' and o.get('metadata').get('name') == 'kwasm-operator':
+    if o.get('kind') == 'Deployment' and o.get('metadata').get('name') == 'runtime-class-manager':
         o['spec']['template']['spec']['securityContext']['runAsNonRoot'] = False
         # Disable the leader election to speed up the startup time.
         o['spec']['template']['spec']['containers'][0]['args'].remove('--leader-elect')
