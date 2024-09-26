@@ -36,9 +36,9 @@ type JobReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=runtime.kwasm.sh,resources=jobs,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=runtime.kwasm.sh,resources=jobs/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=runtime.kwasm.sh,resources=jobs/finalizers,verbs=update
+//+kubebuilder:rbac:groups=batch,resources=jobs,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=batch,resources=jobs/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=batch,resources=jobs/finalizers,verbs=update
 
 // SetupWithManager sets up the controller with the Manager.
 func (jr *JobReconciler) SetupWithManager(mgr ctrl.Manager) error {
