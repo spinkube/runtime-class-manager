@@ -1,4 +1,4 @@
-# This action releases the kwasm-operator helm chart
+# This action releases the runtime-class-manager helm chart
 # The action must run on each commit done against main, however
 # a new release will be performed **only** when a change occurs inside
 # of the `charts` directory.
@@ -40,6 +40,8 @@ jobs:
       - name: Run chart-releaser
         if: github.ref == 'refs/heads/main'
         uses: helm/chart-releaser-action@a917fd15b20e8b64b94d9158ad54cd6345335584 # v1.6.0
+        with:
+          charts_dir: deploy/helm
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           CR_RELEASE_NAME_TEMPLATE: "{{ .Name }}-chart-{{ .Version }}"
