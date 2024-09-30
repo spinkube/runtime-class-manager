@@ -82,7 +82,7 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/${{ inputs.image-name }}:${SBOM_TAG}
 
       - name: Upload SBOMs as artifacts
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: ${{ inputs.image-name }}-sbom-${{ matrix.arch }}
           path: ${{ inputs.image-name }}-sbom-*
