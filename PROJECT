@@ -5,7 +5,7 @@
 domain: kwasm.sh
 layout:
 - go.kubebuilder.io/v4
-projectName: kwasm-operator
+projectName: runtime-class-manager
 repo: github.com/spinkube/runtime-class-manager
 resources:
 - api:

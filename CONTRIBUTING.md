@@ -45,7 +45,7 @@ The following settings can be configured:
 Example:
 
 ```yaml
-registry: ghcr.io/your-gh-username/kwasm-operator
+registry: ghcr.io/your-gh-username/runtime-class-manager
 ```
 
 ### Running the controller
