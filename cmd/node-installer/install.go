@@ -45,14 +45,12 @@ var installCmd = &cobra.Command{
 		}
 
 		config.Runtime.ConfigPath = distro.ConfigPath
-		env := preset.Env{ConfigPath: distro.ConfigPath, HostFs: hostFs}
-
-		if err = distro.Setup(env); err != nil {
+		if err = distro.Setup(preset.Env{ConfigPath: distro.ConfigPath, HostFs: hostFs}); err != nil {
 			slog.Error("failed to run distro setup", "error", err)
 			os.Exit(1)
 		}
 
-		if err := RunInstall(config, rootFs, hostFs, distro.Restarter(env)); err != nil {
+		if err := RunInstall(config, rootFs, hostFs, distro.Restarter()); err != nil {
 			slog.Error("failed to install", "error", err)
 			os.Exit(1)
 		}

@@ -26,7 +26,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/spinkube/runtime-class-manager/internal/containerd"
-	"github.com/spinkube/runtime-class-manager/internal/preset"
 	"github.com/spinkube/runtime-class-manager/internal/shim"
 )
 
@@ -46,7 +45,7 @@ var uninstallCmd = &cobra.Command{
 
 		config.Runtime.ConfigPath = distro.ConfigPath
 
-		if err := RunUninstall(config, rootFs, hostFs, distro.Restarter(preset.Env{ConfigPath: distro.ConfigPath, HostFs: hostFs})); err != nil {
+		if err := RunUninstall(config, rootFs, hostFs, distro.Restarter()); err != nil {
 			slog.Error("failed to uninstall", "error", err)
 			os.Exit(1)
 		}
