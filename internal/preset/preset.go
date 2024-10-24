@@ -76,3 +76,21 @@ var RKE2 = Default.WithConfigPath("/var/lib/rancher/rke2/agent/etc/containerd/co
 	})
 
 var K3s = RKE2.WithConfigPath("/var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl")
+
+var K0s = Default.WithConfigPath("/etc/k0s/containerd.d/config.toml").
+	WithSetup(func(env Env) error {
+		_, err := env.HostFs.Stat(env.ConfigPath)
+		if err == nil {
+			return nil
+		}
+
+		if errors.Is(err, os.ErrNotExist) {
+			_, err := env.HostFs.Create(env.ConfigPath)
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+
+		return err
+	})

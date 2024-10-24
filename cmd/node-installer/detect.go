@@ -32,6 +32,8 @@ var containerdConfigLocations = map[string]preset.Settings{
 	"/var/lib/rancher/rke2/agent/etc/containerd/config.toml": preset.RKE2,
 	// K3s
 	"/var/lib/rancher/k3s/agent/etc/containerd/config.toml": preset.K3s,
+	// K0s
+	"/etc/k0s/containerd.toml": preset.K0s,
 	// default
 	"/etc/containerd/config.toml": preset.Default,
 }
