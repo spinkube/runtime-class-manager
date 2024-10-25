@@ -1,0 +1,32 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wasm-spin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wasm-spin
+  template:
+    metadata:
+      labels:
+        app: wasm-spin
+    spec:
+      runtimeClassName: wasmtime-spin-v2
+      containers:
+      - name: spin-hello
+        image: ghcr.io/spinkube/spin-operator/hello-world:20240909-145818-g30def7d
+        command: ["/"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wasm-spin
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  selector:
+    app: wasm-spin
