@@ -45,7 +45,7 @@ var uninstallCmd = &cobra.Command{
 
 		config.Runtime.ConfigPath = distro.ConfigPath
 
-		if err := RunUninstall(config, rootFs, hostFs, distro.Restarter()); err != nil {
+		if err := RunUninstall(config, rootFs, hostFs, distro.Restarter); err != nil {
 			slog.Error("failed to uninstall", "error", err)
 			os.Exit(1)
 		}

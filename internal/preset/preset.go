@@ -13,7 +13,7 @@ import (
 type Settings struct {
 	ConfigPath string
 	Setup      func(Env) error
-	Restarter  func() containerd.Restarter
+	Restarter  containerd.Restarter
 }
 
 type Env struct {
@@ -24,7 +24,7 @@ type Env struct {
 var Default = Settings{
 	ConfigPath: "/etc/containerd/config.toml",
 	Setup:      func(_ Env) error { return nil },
-	Restarter:  func() containerd.Restarter { return containerd.NewRestarter() },
+	Restarter:  containerd.NewRestarter(),
 }
 
 func (s Settings) WithConfigPath(path string) Settings {

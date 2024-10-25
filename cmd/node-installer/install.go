@@ -50,7 +50,7 @@ var installCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		if err := RunInstall(config, rootFs, hostFs, distro.Restarter()); err != nil {
+		if err := RunInstall(config, rootFs, hostFs, distro.Restarter); err != nil {
 			slog.Error("failed to install", "error", err)
 			os.Exit(1)
 		}
