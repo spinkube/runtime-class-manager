@@ -36,13 +36,18 @@ var uninstallCmd = &cobra.Command{
 	Run: func(_ *cobra.Command, _ []string) {
 		rootFs := afero.NewOsFs()
 		hostFs := afero.NewBasePathFs(rootFs, config.Host.RootPath)
-		restarter := containerd.NewRestarter()
 
-		if err := RunUninstall(config, rootFs, hostFs, restarter); err != nil {
-			slog.Error("failed to uninstall shim", "error", err)
+		distro, err := DetectDistro(config, hostFs)
+		if err != nil {
+			slog.Error("failed to detect containerd config", "error", err)
+			os.Exit(1)
+		}
 
-			// Exiting with 0 to prevent Kubernetes Jobs from running repetitively
-			os.Exit(0)
+		config.Runtime.ConfigPath = distro.ConfigPath
+
+		if err := RunUninstall(config, rootFs, hostFs, distro.Restarter); err != nil {
+			slog.Error("failed to uninstall", "error", err)
+			os.Exit(1)
 		}
 	},
 }

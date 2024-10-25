@@ -51,7 +51,7 @@ func Execute() {
 
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&config.Runtime.Name, "runtime", "r", "containerd", "Set the container runtime to configure (containerd, cri-o)")
-	rootCmd.PersistentFlags().StringVarP(&config.Runtime.ConfigPath, "runtime-config", "c", "/etc/containerd/config.toml", "Path to the runtime config file")
+	rootCmd.PersistentFlags().StringVarP(&config.Runtime.ConfigPath, "runtime-config", "c", "", "Path to the runtime config file. Will try to autodetect if left empty")
 	rootCmd.PersistentFlags().StringVarP(&config.Kwasm.Path, "kwasm-path", "k", "/opt/kwasm", "Working directory for kwasm on the host")
 	rootCmd.PersistentFlags().StringVarP(&config.Host.RootPath, "host-root", "H", "/", "Path to the host root path")
 }
