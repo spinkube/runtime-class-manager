@@ -37,3 +37,7 @@ updates:
           - "k8s.io/apimachinery"
           - "k8s.io/client-go"
           - "sigs.k8s.io/controller-runtime"
+      ginkgo:
+        patterns:
+          - "github.com/onsi/ginkgo/v2"
+          - "github.com/onsi/gomega"
