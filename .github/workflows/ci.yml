@@ -17,6 +17,9 @@ permissions:
   checks: write
 
 jobs:
+  helm_install_smoke_test:
+    uses: ./.github/workflows/helm-chart-smoketest.yml
+
   unit_tests:
     name: Test
     runs-on: ubuntu-latest
