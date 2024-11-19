@@ -50,22 +50,6 @@ jobs:
         run: |
           echo TAG_NAME=$(echo ${{ github.ref_name }}) >> $GITHUB_ENV
 
-      - name: Get latest release tag
-        id: get_last_release_tag
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        with:
-          script: |
-            let release = await github.rest.repos.getLatestRelease({
-               owner: context.repo.owner,
-               repo: context.repo.repo,
-            });
-
-            if (release.status  === 200 ) {
-              core.setOutput('old_release_tag', release.data.tag_name)
-              return
-            }
-            core.setFailed("Cannot find latest release")
-
       - name: Get release ID from the release created by release drafter
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
