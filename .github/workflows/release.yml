@@ -31,6 +31,17 @@ jobs:
       packages: write
       contents: read
 
+  publish-chart:
+    name: Publish the helm chart to the configured OCI registry
+    uses: ./.github/workflows/helm-chart-release.yml
+    permissions:
+      packages: write
+      contents: read
+    needs:
+      - ci
+      - build-manager
+      - build-installer
+
   release:
     name: Create release
 
@@ -38,6 +49,7 @@ jobs:
       - ci
       - build-manager
       - build-installer
+      - publish-chart
 
     permissions:
       contents: write
@@ -90,6 +102,12 @@ jobs:
           path: ./
           merge-multiple: true
 
+      - name: Download helm chart artifact
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          name: runtime-class-manager
+          path: ./
+
       - name: Display structure of downloaded files
         run: ls -R
 
@@ -100,6 +118,9 @@ jobs:
           script: |
             let fs = require('fs');
             let path = require('path');
+
+            // The chart version omits the leading 'v' to adhere to Helm's versioning requirements
+            let chartVersion = "${{ env.TAG_NAME }}".replace("v", "");
 
             let files = [
               'runtime-class-manager-sbom-amd64.spdx',
@@ -114,6 +135,7 @@ jobs:
               'node-installer-sbom-arm64.spdx',
               'node-installer-sbom-arm64.spdx.cert',
               'node-installer-sbom-arm64.spdx.sig',
+              `runtime-class-manager-${chartVersion}.tgz`,
             ]
             const {RELEASE_ID} = process.env
 
