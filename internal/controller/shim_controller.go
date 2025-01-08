@@ -462,7 +462,7 @@ func (sr *ShimReconciler) createJobManifest(shim *rcmv1.Shim, node *corev1.Node,
 	}
 	// set ttl for the installer job only if specified by the user
 	if ttlStr := os.Getenv("SHIM_NODE_INSTALLER_JOB_TTL"); ttlStr != "" {
-		if ttl, err := strconv.Atoi(ttlStr); err == nil && ttl > 0 {
+		if ttl, err := strconv.ParseInt(ttlStr, 10, 32); err == nil && ttl > 0 {
 			job.Spec.TTLSecondsAfterFinished = ptr(int32(ttl))
 		}
 	}
