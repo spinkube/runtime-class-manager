@@ -17,6 +17,8 @@ rcm:
   nodeInstallerImage:
     repository: "ghcr.io/spinkube/node-installer"
     tag: "latest"
+  nodeInstallerJob:
+    ttl: 0
 
 imagePullSecrets: []
 nameOverride: ""
