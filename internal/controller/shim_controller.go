@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"strconv"
 
 	"github.com/rs/zerolog/log"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -227,7 +228,7 @@ func (sr *ShimReconciler) handleInstallShim(ctx context.Context, shim *rcmv1.Shi
 	case rcmv1.RolloutStrategyTypeRolling:
 		{
 			log.Debug().Msgf("Rolling strategy selected: maxUpdate=%d", shim.Spec.RolloutStrategy.Rolling.MaxUpdate)
-			return ctrl.Result{}, errors.New("Rolling strategy not implemented yet")
+			return ctrl.Result{}, errors.New("rolling strategy not implemented yet")
 		}
 	case rcmv1.RolloutStrategyTypeRecreate:
 		{
@@ -459,7 +460,12 @@ func (sr *ShimReconciler) createJobManifest(shim *rcmv1.Shim, node *corev1.Node,
 			},
 		},
 	}
-
+	// set ttl for the installer job only if specified by the user
+	if ttlStr := os.Getenv("SHIM_NODE_INSTALLER_JOB_TTL"); ttlStr != "" {
+		if ttl, err := strconv.Atoi(ttlStr); err == nil && ttl > 0 {
+			job.Spec.TTLSecondsAfterFinished = ptr(int32(ttl))
+		}
+	}
 	if operation == INSTALL {
 		if err := ctrl.SetControllerReference(shim, job, sr.Scheme); err != nil {
 			return nil, fmt.Errorf("failed to set controller reference: %w", err)
