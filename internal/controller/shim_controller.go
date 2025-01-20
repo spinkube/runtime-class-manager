@@ -48,6 +48,7 @@ const (
 	UNINSTALL                     = "uninstall"
 	ProvisioningStatusProvisioned = "provisioned"
 	ProvisioningStatusPending     = "pending"
+	K8sNameMaxLength              = 63
 )
 
 // ShimReconciler reconciles a Shim object
@@ -385,7 +386,7 @@ func (sr *ShimReconciler) createJobManifest(shim *rcmv1.Shim, node *corev1.Node,
 	sr.setOperationConfiguration(shim, &opConfig)
 
 	name := node.Name + "-" + shim.Name + "-" + operation
-	nameMax := int(math.Min(float64(len(name)), 63))
+	nameMax := int(math.Min(float64(len(name)), K8sNameMaxLength))
 
 	job := &batchv1.Job{
 		TypeMeta: metav1.TypeMeta{
@@ -498,7 +499,7 @@ func (sr *ShimReconciler) handleDeployRuntimeClass(ctx context.Context, shim *rc
 // createRuntimeClassManifest creates a RuntimeClass manifest for a Shim.
 func (sr *ShimReconciler) createRuntimeClassManifest(shim *rcmv1.Shim) (*nodev1.RuntimeClass, error) {
 	name := shim.Spec.RuntimeClass.Name
-	nameMax := int(math.Min(float64(len(name)), 63))
+	nameMax := int(math.Min(float64(len(name)), K8sNameMaxLength))
 
 	nodeSelector := shim.Spec.NodeSelector
 	if nodeSelector == nil {

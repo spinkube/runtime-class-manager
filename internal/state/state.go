@@ -60,5 +60,5 @@ func (l *State) Write() error {
 
 	slog.Debug("writing lock file", "content", string(out))
 
-	return afero.WriteFile(l.fs, l.lockFilePath, out, 0644) //nolint:gomnd // file permissions
+	return afero.WriteFile(l.fs, l.lockFilePath, out, 0644) //nolint:mnd // file permissions
 }
