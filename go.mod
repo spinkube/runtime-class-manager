@@ -8,7 +8,7 @@ require (
 	github.com/mitchellh/go-ps v1.0.0
 	github.com/onsi/ginkgo/v2 v2.22.2
 	github.com/onsi/gomega v1.36.2
-	github.com/prometheus/common v0.61.0
+	github.com/prometheus/common v0.62.0
 	github.com/rs/zerolog v1.33.0
 	github.com/spf13/afero v1.12.0
 	github.com/spf13/cobra v1.8.1
