@@ -64,7 +64,7 @@ func (c *Config) AddRuntime(shimPath string) error {
 	}
 
 	// Open file in append mode
-	file, err := c.hostFs.OpenFile(c.configPath, os.O_APPEND|os.O_WRONLY, 0o644) //nolint:gomnd // file permissions
+	file, err := c.hostFs.OpenFile(c.configPath, os.O_APPEND|os.O_WRONLY, 0o644) //nolint:mnd // file permissions
 	if err != nil {
 		return err
 	}
@@ -101,7 +101,7 @@ func (c *Config) RemoveRuntime(shimPath string) (changed bool, err error) {
 	modifiedData := strings.ReplaceAll(string(data), cfg, "")
 
 	// Write the modified data back to the file.
-	err = afero.WriteFile(c.hostFs, c.configPath, []byte(modifiedData), 0o644) //nolint:gomnd // file permissions
+	err = afero.WriteFile(c.hostFs, c.configPath, []byte(modifiedData), 0o644) //nolint:mnd // file permissions
 	if err != nil {
 		return false, err
 	}
