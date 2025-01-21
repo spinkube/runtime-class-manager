@@ -31,6 +31,14 @@ jobs:
       packages: write
       contents: read
 
+  build-downloader:
+    name: Build downloader image, sign it, and generate SBOMs
+    uses: ./.github/workflows/downloader-build.yml
+    permissions:
+      id-token: write
+      packages: write
+      contents: read
+
   publish-chart:
     name: Publish the helm chart to the configured OCI registry
     uses: ./.github/workflows/helm-chart-release.yml
@@ -41,6 +49,7 @@ jobs:
       - ci
       - build-manager
       - build-installer
+      - build-downloader
 
   release:
     name: Create release
@@ -49,6 +58,7 @@ jobs:
       - ci
       - build-manager
       - build-installer
+      - build-downloader
       - publish-chart
 
     permissions:
@@ -119,6 +129,12 @@ jobs:
               'node-installer-sbom-arm64.spdx',
               'node-installer-sbom-arm64.spdx.cert',
               'node-installer-sbom-arm64.spdx.sig',
+              'shim-downloader-sbom-amd64.spdx',
+              'shim-downloader-sbom-amd64.spdx.cert',
+              'shim-downloader-sbom-amd64.spdx.sig',
+              'shim-downloader-sbom-arm64.spdx',
+              'shim-downloader-sbom-arm64.spdx.cert',
+              'shim-downloader-sbom-arm64.spdx.sig',
               `runtime-class-manager-${chartVersion}.tgz`,
             ]
             const {RELEASE_ID} = process.env
