@@ -206,7 +206,27 @@ func (sr *ShimReconciler) updateStatus(ctx context.Context, shim *rcmv1.Shim, no
 		}
 	}
 
-	// TODO: include proper status conditions to update
+	if shim.Status.NodeReadyCount != shim.Status.NodeCount {
+		// Create a new condition to represent the shim's readiness
+		shimReady := metav1.Condition{
+			Type:               "Ready",
+			Status:             metav1.ConditionTrue,
+			LastTransitionTime: metav1.Now(),
+			Reason:             "ShimReady",
+			Message:            "Shim is ready",
+		}
+		shim.Status.Conditions = []metav1.Condition{shimReady}
+	} else {
+		// If not all nodes are ready, create the "Ready" condition with status false
+		shimReady := metav1.Condition{
+			Type:               "Ready",
+			Status:             metav1.ConditionFalse,
+			LastTransitionTime: metav1.Now(),
+			Reason:             "ShimNotReady",
+			Message:            fmt.Sprintf("Shim is not ready. Ready nodes: %d, Total nodes: %d", shim.Status.NodeReadyCount, shim.Status.NodeCount),
+		}
+		shim.Status.Conditions = []metav1.Condition{shimReady}
+	}
 
 	if err := sr.Update(ctx, shim); err != nil {
 		log.Error().Msgf("Unable to update status %s", err)
